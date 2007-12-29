@@ -4,13 +4,23 @@ import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.builder.ButtonStackBuilder;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.CellConstraints;
 import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.db.DataSource;
-import org.mpn.contacts.framework.db.Row;
 import org.mpn.contacts.framework.db.DbAccess;
-import org.mpn.contacts.framework.ui.*;
-import org.mpn.contacts.framework.ui.dnd.RowPanel;
+import org.mpn.contacts.framework.db.Row;
+import org.mpn.contacts.framework.db.RowValue;
+import org.mpn.contacts.framework.ui.MDIDesktopPane;
+import org.mpn.contacts.framework.ui.RowAddAction;
+import org.mpn.contacts.framework.ui.RowCommitAction;
+import org.mpn.contacts.framework.ui.RowNextAction;
+import org.mpn.contacts.framework.ui.RowPreviousAction;
+import org.mpn.contacts.framework.ui.RowRollbackAction;
+import org.mpn.contacts.framework.ui.SingleRowUIForm;
+import org.mpn.contacts.framework.ui.UiComboBoxAbstract;
+import org.mpn.contacts.framework.ui.UiComboBoxFixed;
 import org.mpn.contacts.framework.ui.dnd.DndFrame;
+import org.mpn.contacts.framework.ui.dnd.RowPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -101,6 +111,20 @@ public class MainFrame {
         mainPanel.add(buttonStackBuilder.getPanel(), BorderLayout.WEST);
     }
 
+    private static final class GenderRenderer implements ListCellRenderer {
+        private ListCellRenderer rendenrer;
+
+        public GenderRenderer(ListCellRenderer rendenrer) {
+            this.rendenrer = rendenrer;
+        }
+
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Boolean booleanValue = (Boolean) value;
+            String text = booleanValue == null ? "" : (booleanValue.booleanValue() ? "male" : "female");
+            return rendenrer.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
+        }
+    }
+
     public void createUserDetailsDialog() {
         Row userRow = Data.personTable.getRow();
         SingleRowUIForm userUiForm = new SingleRowUIForm(userRow);
@@ -111,8 +135,31 @@ public class MainFrame {
         formBuilder.setDefaultDialogBorder();
 
         formBuilder.appendSeparator("General");
-        formBuilder.append("Name");
+        formBuilder.append("First name");
         formBuilder.append(userUiForm.createJTextField(Data.personFirstName));
+        formBuilder.append("Middle name");
+        formBuilder.append(userUiForm.createJTextField(Data.personMiddleName));
+        formBuilder.append("Last name");
+        formBuilder.append(userUiForm.createJTextField(Data.personLastName));
+        formBuilder.append("Birthday");
+        formBuilder.append(userUiForm.createJDateField(Data.personBirthday));
+        formBuilder.append("Gender");
+        UiComboBoxAbstract<Boolean> genderUiComboBox = new UiComboBoxAbstract<Boolean>();
+        JComboBox genderComboBox = genderUiComboBox.getUiComponent();
+        genderComboBox.setRenderer(new GenderRenderer(genderComboBox.getRenderer()));
+        formBuilder.append(genderComboBox);
+        userUiForm.addUiComponent(genderUiComboBox, Data.personGender);
+        formBuilder.append("Note");
+        formBuilder.append(userUiForm.createJTextField(Data.personNote));
+
+        CellConstraints cc = new CellConstraints();
+        formBuilder.appendSeparator("Address");
+
+        formBuilder.add(new JLabel("aaa"), cc.xywh(1, formBuilder.getRow(), 2, 4));
+        formBuilder.appendSeparator("General2");
+        formBuilder.add(new JLabel("bbb"), cc.xywh(1, formBuilder.getRow(), 2, 4));
+        formBuilder.appendSeparator("General3");
+
 //        formBuilder.append("E-mail");
 //        formBuilder.append(userUiForm.createJTextField(Data.personEmail));
 
@@ -127,6 +174,12 @@ public class MainFrame {
         userDetailsWindow.add(userDetailsPanel, BorderLayout.CENTER);
         userDetailsWindow.add(buttonsBarBuilder.getPanel(), BorderLayout.SOUTH);
         addNewInternalFrame(userDetailsWindow);
+    }
+
+    private void createAddressTable(Row userRow) {
+        RowValue<Long> personId = new RowValue<Long>(userRow, Data.personTable.id);
+        DataSource personAddressDataSource = Data.addressPersonTable.getFilteredTable(Data.personTable.id, personId);
+        
     }
 
     public void createTownDialog() {

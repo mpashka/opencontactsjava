@@ -65,6 +65,13 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
         readTableData();
     }
 
+    public void close() throws SQLException {
+        selectDataPreparedStatement.close();
+        insertDataPreparedStatement.close();
+        insertIdDataPreparedStatement.close();
+        updateDataPreparedStatement.close();
+    }
+
     public Field<Long> getIdField() {
         return id;
     }
@@ -79,6 +86,7 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
                 }
                 tableData.add(fieldsData);
             }
+            resultSet.close();
         } catch (SQLException e) {
             log.error("Error creating table", e);
             throw new ContactsException(e);
@@ -141,6 +149,8 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
             ResultSet insertIdData = insertIdDataPreparedStatement.executeQuery();
             insertIdData.next();
             fieldsData[0] = insertIdData.getLong(1);
+            insertIdData.close();
+            dbAccess.commit();
 
             Object[] newFieldData = new Object[fieldsData.length];
             System.arraycopy(fieldsData, 0, newFieldData, 0, fieldsData.length);
@@ -163,6 +173,7 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
             if (rowCount != 1) {
                 log.error("Error executing update : " + rowCount);
             }
+            dbAccess.commit();
 
             Object[] newFieldData = findRowById((Long) fieldsData[0]);
             System.arraycopy(fieldsData, 0, newFieldData, 0, fieldsData.length);

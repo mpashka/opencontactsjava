@@ -67,9 +67,6 @@ public class ImportHtml extends Importer {
     private int mobilePhoneIndex;
     private int pictureIndex;
 
-    private RussianNameConverter nameConverter = new RussianNameConverter();
-
-
     final State TABLE_HEADER = new State() {
         public void readLine(String line) {
             if (line.startsWith("<th ") && line.contains("class=\"confluenceTh\"")) {
@@ -186,7 +183,6 @@ public class ImportHtml extends Importer {
 //        log.debug("New row : " + columnValues);
 
         String name = columnValues.get(nameIndex).getText();
-        nameConverter.convertName(name);
 //        log.debug("    Name = " + name + ", firstName : " + nameConverter.getFirstName() + ", lastName : " + nameConverter.getLastName());
         if (emailIndex != -1) {
             addMessaging(columnValues.get(emailIndex).getText(), Data.IM_TYPE_EMAIL);
@@ -209,7 +205,7 @@ public class ImportHtml extends Importer {
         }
         if (roleIndex != -1) {
             String role = columnValues.get(roleIndex).getText();
-            addPersonCompanyComment("Role : " + role);
+            setCompanyPersonPosition(role);
         }
         if (officePhoneIndex != -1) {
             String officePhone = columnValues.get(officePhoneIndex).getText();
@@ -217,7 +213,7 @@ public class ImportHtml extends Importer {
         }
         if (homePhoneIndex != -1) {
             String homePhone = columnValues.get(homePhoneIndex).getText();
-            setPhoneHome(homePhone);
+            setPhonesHome(homePhone);
         }
         if (mobilePhoneIndex != -1) {
             String mobilePhone = columnValues.get(mobilePhoneIndex).getText();
@@ -248,9 +244,6 @@ public class ImportHtml extends Importer {
             }
         }
 
-        setFirstName(nameConverter.getFirstName());
-        setMiddleName(nameConverter.getMiddleName());
-        setLastName(nameConverter.getLastName());
         setFullName(name);
 
         importContact();

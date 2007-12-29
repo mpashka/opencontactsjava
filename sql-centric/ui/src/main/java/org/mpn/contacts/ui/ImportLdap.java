@@ -13,10 +13,15 @@
 package org.mpn.contacts.ui;
 
 import org.apache.log4j.Logger;
+import org.mpn.contacts.framework.db.DbAccess;
 
-import java.io.*;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.sql.SQLException;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.ImportLdap here
@@ -24,11 +29,20 @@ import java.util.HashMap;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class ImportLdap {
+public class ImportLdap extends Importer {
 
     static final Logger log = Logger.getLogger(ImportLdap.class);
 
-    public void doImport(File ldapFile) throws IOException {
+    private String companyName;
+
+    public ImportLdap() {
+        super("ldap", true);
+    }
+
+    public void doImport(String companyName, File ldapFile) throws IOException {
+        this.companyName = companyName;
+        checkOrganization();
+
         BufferedReader in = new BufferedReader(new FileReader(ldapFile));
 
         String inLine;
@@ -66,9 +80,68 @@ public class ImportLdap {
     private void addSection(Map<String, String> section, StringBuilder lastLine) {
         addPreviousLine(section, lastLine);
 //        log.debug("Section : " + section);
+
+        String objectCategory = section.get("objectCategory");
+        if (objectCategory == null || !objectCategory.contains("CN=Person")) return;
+
+        startImportContact();
+
+        String icq = section.get("pager");
+        addMessaging(icq, Data.IM_TYPE_ICQ);
+
+        String mail = section.get("mail");
+        addMessaging(mail, Data.IM_TYPE_EMAIL);
+        setCompanyPersonEmail(mail);
+
+        String skype = section.get("ipPhone");
+        addMessaging(skype, Data.IM_TYPE_SKYPE);
+
+        setFullName(section.get("name"));
+        setFirstName(section.get("givenName"));
+        setMiddleName(section.get("initials"));
+        setLastName(section.get("sn"));
+
+        String companyPhone = section.get("telephoneNumber");
+        setCompanyPhone(companyPhone);
+
+        String companyPosition = section.get("title");
+        setCompanyPersonPosition(companyPosition);
+
+        String homePhone = section.get("homePhone");
+        setPhonesHome(homePhone);
+
+        String mobilePhone = section.get("mobile");
+        setPhoneMobile(mobilePhone);
+
+        String department = section.get("department");
+        setCompanyDepartment(department);
+
+        String roomName = section.get("physicalDeliveryOfficeName");
+        setCompanyLocation(roomName);
+
+        setCompany(companyName);
+
+        importContact();
+        section.clear();
     }
 
-    public static void main(String[] args) throws IOException {
-        new ImportLdap().doImport(new File("C:\\Personal\\Contacts\\2007_03_26\\jnetx.ldif"));
+    private void checkOrganization() {
+        if (!search(organizationRow, Data.organizationName, companyName)) {
+            beginRowUpdate(organizationRow);
+            setRowField(Data.organizationName, companyName);
+            endRowUpdate(true, organizationRow);
+        }
+    }
+
+    public static void main(String[] args) throws IOException, SQLException, InterruptedException {
+
+        ImportLdap importLdap = new ImportLdap();
+
+        importLdap.doImport("jnetx", new File("C:\\Personal\\Contacts\\2007_03_26\\jnetx.ldif"));
+
+
+        Thread.sleep(4000);
+
+        DbAccess.getInstance().close();
     }
 }

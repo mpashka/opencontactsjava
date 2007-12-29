@@ -17,6 +17,7 @@ import org.mpn.contacts.framework.db.Field;
 import org.mpn.contacts.framework.db.Row;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.Importer here
@@ -27,6 +28,8 @@ import java.util.*;
 public class Importer {
 
     static final Logger log = Logger.getLogger(Importer.class);
+
+    private static final Pattern PHONE_DELIMITERS_PATTERN = Pattern.compile("[\\s+\\(\\)-]*");
 
     private static final Comparator EQUALS_COMPARATOR = new Comparator() {
         public int compare(Object o1, Object o2) {
@@ -42,15 +45,18 @@ public class Importer {
         }
     };
 
+    private Row personAddressRow = Data.personAddressTable.getRow();
     private Row personMessagingTableRow = Data.personMessagingTable.getRow();
     private Row personTableRow = Data.personTable.getRow();
     private Row personImageTableRow = Data.photoTable.getRow();
     private Row autoConvertNotesRow = Data.autoConvertNotesTable.getRow();
-    private Row organizationTable = Data.organizationTable.getRow();
+    protected Row organizationRow = Data.organizationTable.getRow();
+    private Row personOrganizationRow = Data.personOrganizationTable.getRow();
+
+    private RussianNameConverter nameConverter = new RussianNameConverter();
+
 
     private Set<String[]> messaging;
-
-    private Long personId;
 
     private String fullName;
     private String firstName;
@@ -61,8 +67,7 @@ public class Importer {
     private String city;
 
 
-    private String phoneHome;
-    private String phoneMobile;
+    private Set<String> phonesHome;
     private String about;
     private String country;
     private String age;
@@ -72,10 +77,13 @@ public class Importer {
 
     private String company;
     private String companyCountry;
-    private String companyPosition;
+    private String companyPersonPosition;
+    private String companyPersonEmail;
     private String companyOccupation;
     private String companyPhone;
     private String companyCity;
+    private String companyDepartment;
+    private String companyLocation;
 
     private String homepage;
     private Boolean gender;
@@ -101,6 +109,7 @@ public class Importer {
                 return compareResult;
             }
         });
+        rowComments = new HashSet<String[]>();
 
         fullName = null;
         firstName = null;
@@ -111,8 +120,7 @@ public class Importer {
         city = null;
 
 
-        phoneHome = null;
-        phoneMobile = null;
+        phonesHome = new HashSet<String>();
         about = null;
         country = null;
         age = null;
@@ -122,48 +130,38 @@ public class Importer {
 
         company = null;
         companyCountry = null;
-        companyPosition = null;
+        companyPersonPosition = null;
+        companyPersonEmail = null;
         companyOccupation = null;
         companyPhone = null;
         companyCity = null;
+        companyDepartment = null;
+        companyLocation = null;
+
 
         homepage = null;
         gender = null;
+        picture = null;
     }
 
     public void importContact() {
-        personId = null;
-        if (phoneHome != null) {
-            rowComments.add("Phone : " + phoneHome);
+        if (messaging.isEmpty()) {
+            log.warn("Nothing to convert - no messaging: " + fullName);
+            return;
         }
-        if (phoneMobile != null) {
-            phoneMobile = phoneMobile.replaceAll("[\\s+\\(\\)]*", "");
-            if (phoneMobile.startsWith("89")) {
-                phoneMobile = "7" + phoneMobile.substring(1);
-            } else if (phoneMobile.startsWith("9") && phoneMobile.length() == 10) {
-                phoneMobile = "7" + phoneMobile;
-            }
-            if (phoneMobile.length() != 11) {
-                log.warn("Mobile phone length is no 11 : " + phoneMobile);
-            }
-            messaging.add(new String[]{phoneMobile, Data.IM_TYPE_MOBILE});
-        }
-        for (String[] strings : messaging) {
-            String messagingId = strings[0];
-            String messagingType = strings[1];
-            if (search(personMessagingTableRow, new Field[]{Data.personMessagingId, Data.personMessagingType}, messagingId, messagingType)) {
-                Long newPersonId = personMessagingTableRow.getId();
-                if (personId != null && !newPersonId.equals(personId)) {
-                    log.error("Several persons found for the same contact : " + personId + " != " + newPersonId);
-                } else {
-                    personId = newPersonId;
-                }
-            }
-        }
+
+        Long personId = searchPersonByMessaging();
+
+        boolean homePhoneImported = checkHomePhones(personId);
 
         if (personId != null) {
             search(personTableRow, Data.personTable.id, personId);
         }
+
+        nameConverter.convertName(fullName, firstName, middleName, lastName);
+        firstName = nameConverter.getFirstName();
+        middleName = nameConverter.getMiddleName();
+        lastName = nameConverter.getLastName();
 
         // add person
         beginRowUpdate(personTableRow);
@@ -172,6 +170,11 @@ public class Importer {
         setRowField(Data.personLastName, lastName);
         setRowField(Data.personBirthday, birthDay);
         setRowField(Data.personGender, gender);
+        if (!homePhoneImported && !phonesHome.isEmpty()) {
+            Iterator<String> iterator = phonesHome.iterator();
+            setRowField(Data.phone, iterator.next());
+            iterator.remove();
+        }
         personId = endRowUpdate(personId == null, personTableRow);
 
         for (String[] strings : messaging) {
@@ -217,34 +220,114 @@ public class Importer {
         addComment("birthDayString", birthDayString);
         addComment("homepage", homepage);
 
-        if (importCompany) {
+        if (importCompany && company != null) {
+            if (search(organizationRow, Data.organizationName, company)) {
+                Long organizationId = organizationRow.getId();
+                boolean personOrganizationRowExists = search(personOrganizationRow, new Field[] {
+                        Data.personTable.id, Data.organizationTable.id,
+                }, personId, organizationId);
 
-            private String company;
-            private String companyCountry;
-            private String companyPosition;
-            private String companyOccupation;
-            private String companyPhone;
-            private String companyCity;
+                beginRowUpdate(personOrganizationRow);
+                setRowField(Data.organizationTable.id, organizationId);
+                setRowField(Data.personTable.id, personId);
+                setRowField(Data.phone, companyPhone);
+                setRowField(Data.personOrganizationDepartment, companyDepartment);
+                setRowField(Data.personOrganizationPosition, companyPersonPosition);
+                setRowField(Data.email, companyPersonEmail);
+                setRowField(Data.personOrganizationLocation, companyLocation);
+//                private String companyCountry;
+//                private String companyOccupation;
+//                private String companyCity;
+                endRowUpdate(!personOrganizationRowExists, personOrganizationRow);
+
+            } else {
+                log.error("Company not found : " + company);
+            }
         } else {
             addComment("company", company);
             addComment("companyCountry", companyCountry);
-            addComment("companyPosition", companyPosition);
+            addComment("companyPersonPosition", companyPersonPosition);
             addComment("companyOccupation", companyOccupation);
             addComment("companyPhone", companyPhone);
             addComment("companyCity", companyCity);
         }
 
+        for (String phoneHome : phonesHome) {
+            addComment("Phone home", phoneHome);
+        }
+
+        for (String[] comments : rowComments) {
+            String comment = comments[0];
+            String field = comments[1];
+            boolean commentExist = search(autoConvertNotesRow, Data.personTable.id, Data.autoConvertNote,
+                    personId, comment, String.CASE_INSENSITIVE_ORDER);
+            if (!commentExist) {
+                beginRowUpdate(autoConvertNotesRow);
+                setRowField(Data.autoConvertNote, comment);
+                setRowField(Data.autoConvertName, field);
+                setRowField(Data.personTable.id, personId);
+                setRowField(Data.autoConvertApplication, importerName);
+                endRowUpdate(true, autoConvertNotesRow);
+            }
+
+        }
+    }
+
+    /**
+     * @return true if phone was already presented in addressbbok
+     */
+    private boolean checkHomePhones(Long personId) {
+        if (phonesHome.isEmpty()) return true;
+        if (personId == null) return false;
+        for (Iterator<String> iterator = phonesHome.iterator(); iterator.hasNext();) {
+            String phoneHome = iterator.next();
+            personAddressRow.startIteration();
+            String phoneHomeInt = PHONE_DELIMITERS_PATTERN.matcher(phoneHome).replaceAll("");
+            while (personAddressRow.hasNext()) {
+                personAddressRow.next();
+                Long addressPersonId = personAddressRow.getData(Data.personTable.id);
+                if (personId.equals(addressPersonId)) {
+                    String addressHomePhone = personAddressRow.getData(Data.phone);
+                    if (addressHomePhone != null &&
+                            PHONE_DELIMITERS_PATTERN.matcher(addressHomePhone).replaceAll("").equalsIgnoreCase(phoneHomeInt)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+            }
+        }
+        return phonesHome.isEmpty();
+    }
+
+    private Long searchPersonByMessaging() {
+        Long personId = null;
+        for (String[] strings : messaging) {
+            String messagingId = strings[0];
+            String messagingType = strings[1];
+            if (search(personMessagingTableRow, new Field[]{Data.personMessagingId, Data.personMessagingType}, messagingId, messagingType)) {
+                Long newPersonId = personMessagingTableRow.getData(Data.personTable.id);
+                if (personId != null && !newPersonId.equals(personId)) {
+                    log.error("Several persons found for the same contact : " + personId + " != " + newPersonId);
+                } else {
+                    personId = newPersonId;
+                }
+            }
+        }
+        return personId;
     }
 
     private Map<Field, Object> rowFields;
-    private Set<String> rowComments;
+    private Set<String[]> rowComments;
 
-    private void beginRowUpdate(Row tableRow) {
+    protected void beginRowUpdate(Row tableRow) {
         rowFields = new HashMap<Field, Object>();
-        rowComments = new HashSet<String>();
     }
 
-    private Long endRowUpdate(boolean add, Row row) {
+    protected Long endRowUpdate(boolean add, Row row) {
+        boolean updateNeeded = false;
+        if (add) {
+            row.clearData();
+        }
         for (Map.Entry<Field, Object> entry : rowFields.entrySet()) {
             Field field = entry.getKey();
             Object newValue = entry.getValue();
@@ -258,27 +341,32 @@ public class Importer {
                         addComment(field.getName(), newValue);
                     }
                 } else {
+                    updateNeeded = true;
                     row.setData(field, newValue);
                 }
+            } else {
+                row.setData(field, newValue);
             }
         }
         if (add) {
             row.commitInsert();
         } else {
-            row.commitUpdate();
+            if (updateNeeded) {
+                row.commitUpdate();
+            }
         }
         return row.getId();
     }
 
-    private <Type> void setRowField(Field<Type> field, Type data) {
+    protected <Type> void setRowField(Field<Type> field, Type data) {
         if (data != null) {
             rowFields.put(field, data);
         }
     }
 
-    private void addComment(String field, Object comment) {
+    public void addComment(String field, Object comment) {
         if (comment == null) return;
-        rowComments.add(field + ":" + comment.toString());
+        rowComments.add(new String[]{comment.toString(), field});
     }
 
     private void addComment(Set<String> comments, String field, Object comment) {
@@ -286,8 +374,15 @@ public class Importer {
         comments.add(field + ":" + comment.toString());
     }
 
-    private boolean search(Row tableRow, Field<String> field, String data) {
+    protected boolean search(Row tableRow, Field<String> field, String data) {
         return search(tableRow, field, data, String.CASE_INSENSITIVE_ORDER);
+    }
+
+    protected <Type> boolean search(Row tableRow, Field<Long> idField, Field<Type> field, Long id, Type data, Comparator<Type> comparator) {
+        Comparator[] comparators = new Comparator[]{EQUALS_COMPARATOR, comparator};
+        Field[] fields = new Field[]{idField, field};
+        Object[] objects = new Object[]{id, data};
+        return search(tableRow, fields, objects, comparators);
     }
 
     private boolean search(Row row, Field<String>[] fields, String ... data) {
@@ -332,6 +427,7 @@ public class Importer {
     }
 
     public void addMessaging(String id, String messagingType) {
+        if (id == null) return;
         id = id.toLowerCase();
         messaging.add(new String[]{id, messagingType});
     }
@@ -372,12 +468,24 @@ public class Importer {
         this.city = city;
     }
 
-    public void setPhoneHome(String phoneHome) {
-        this.phoneHome = phoneHome;
+    public void setPhonesHome(String phoneHome) {
+        if (phoneHome == null) return;
+        phonesHome.add(phoneHome);
     }
 
     public void setPhoneMobile(String phoneMobile) {
-        this.phoneMobile = phoneMobile;
+        if (phoneMobile != null) {
+            phoneMobile = PHONE_DELIMITERS_PATTERN.matcher(phoneMobile).replaceAll("");
+            if (phoneMobile.startsWith("89")) {
+                phoneMobile = "7" + phoneMobile.substring(1);
+            } else if (phoneMobile.startsWith("9") && phoneMobile.length() == 10) {
+                phoneMobile = "7" + phoneMobile;
+            }
+            if (phoneMobile.length() != 11) {
+                log.warn("Mobile phone length is no 11 : " + phoneMobile);
+            }
+            messaging.add(new String[]{phoneMobile, Data.IM_TYPE_MOBILE});
+        }
     }
 
     public void setAbout(String about) {
@@ -408,8 +516,12 @@ public class Importer {
         this.companyCountry = companyCountry;
     }
 
-    public void setCompanyPosition(String companyPosition) {
-        this.companyPosition = companyPosition;
+    public void setCompanyPersonPosition(String companyPersonPosition) {
+        this.companyPersonPosition = companyPersonPosition;
+    }
+
+    public void setCompanyPersonEmail(String companyPersonEmail) {
+        this.companyPersonEmail = companyPersonEmail;
     }
 
     public void setCompanyOccupation(String companyOccupation) {
@@ -422,6 +534,14 @@ public class Importer {
 
     public void setCompanyCity(String companyCity) {
         this.companyCity = companyCity;
+    }
+
+    public void setCompanyDepartment(String companyDepartment) {
+        this.companyDepartment = companyDepartment;
+    }
+
+    public void setCompanyLocation(String companyLocation) {
+        this.companyLocation = companyLocation;
     }
 
     public void setHomepage(String homepage) {

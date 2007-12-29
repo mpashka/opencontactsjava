@@ -22,7 +22,7 @@ public class DbAccess {
         sqlTypesMap.put(Integer.class,          "INTEGER");
         sqlTypesMap.put(Double.class,           "DOUBLE");
         sqlTypesMap.put(String.class,           "VARCHAR");
-        sqlTypesMap.put(Date.class,             "TIMESTAMP ");
+        sqlTypesMap.put(java.util.Date.class,     "TIMESTAMP ");
         sqlTypesMap.put(java.sql.Date.class,      "DATE ");
         sqlTypesMap.put(java.sql.Time.class,      "TIME ");
         sqlTypesMap.put(java.sql.Timestamp.class, "TIMESTAMP ");
@@ -52,7 +52,7 @@ public class DbAccess {
         try {
             Class.forName(driverClassName);
             connection = DriverManager.getConnection(driverUrl, driverLogin, driverPassword);
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+//            connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             connection.setAutoCommit(true);
             loadExistingTables();
         } catch (Exception e) {
@@ -66,6 +66,20 @@ public class DbAccess {
             dbAccess = new DbAccess();
         }
         return dbAccess;
+    }
+
+    public void commit() throws SQLException {
+        connection.commit();
+    }
+
+    public void close() throws SQLException {
+        for (DbTable dbTable : tables.values()) {
+            if (dbTable != null) {
+                dbTable.close();
+            }
+        }
+        connection.close();
+        log.info("Database closed");
     }
 
     private void loadExistingTables() {
@@ -98,7 +112,11 @@ public class DbAccess {
     }
 
     public void createTable(DbTable dbTable) {
-        if (tables.containsKey(dbTable.getName().toLowerCase())) return;
+        String tableName = dbTable.getName().toLowerCase();
+        if (tables.containsKey(tableName)) {
+            tables.put(tableName, dbTable);
+            return;
+        }
         StringBuilder sqlStatement = new StringBuilder();
         sqlStatement.append("CREATE TABLE ");
         sqlStatement.append(dbTable.getName());

@@ -50,6 +50,10 @@ public class FilteredDataSource extends EventGeneratorBase<DataSource> implement
         readData();
     }
 
+    public Field<Long> getIdField() {
+        return dbTable.getIdField();
+    }
+
     public String getName() {
         return "Filtered:" + dbTable.getName();
     }
