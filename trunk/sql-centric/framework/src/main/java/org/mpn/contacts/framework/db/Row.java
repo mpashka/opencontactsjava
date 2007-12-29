@@ -74,6 +74,8 @@ public interface Row extends EventGenerator<Row>, Iterator<Row> {
 
     boolean hasData();
 
+    void clearData();
+
     void commitInsert();
 
     void commitUpdate();

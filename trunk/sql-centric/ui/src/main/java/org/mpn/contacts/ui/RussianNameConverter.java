@@ -24,67 +24,67 @@ import java.util.Map;
  * @version $Revision$
  */
 public class RussianNameConverter {
-    static final Logger log = Logger.getLogger(ImportHtml.class);
+    static final Logger log = Logger.getLogger(RussianNameConverter.class);
 
     private static final Map<String, String> RUSSIAN_NAMES = new HashMap<String, String>();
     static {
-        RUSSIAN_NAMES.put("Alexander", "Александр");
-        RUSSIAN_NAMES.put("Alexandra", "Александра");
-        RUSSIAN_NAMES.put("Alexei", "Алексей");
-        RUSSIAN_NAMES.put("Alexey", "Алексей");
-        RUSSIAN_NAMES.put("Alla", "Алла");
-        RUSSIAN_NAMES.put("Anatoly", "Анатолий");
-        RUSSIAN_NAMES.put("Andrei", "Андрей");
-        RUSSIAN_NAMES.put("Andrew", "Андрей");
-        RUSSIAN_NAMES.put("Andrey", "Андрей");
-        RUSSIAN_NAMES.put("Anna", "Анна");
-        RUSSIAN_NAMES.put("Anton", "Антон");
-        RUSSIAN_NAMES.put("Arseniy", "Арсений");
-        RUSSIAN_NAMES.put("Artem", "Артем");
-        RUSSIAN_NAMES.put("Boris", "Борис");
-        RUSSIAN_NAMES.put("Damir", "Дамир");
-        RUSSIAN_NAMES.put("Denis", "Денис");
-        RUSSIAN_NAMES.put("Denis", "Денис");
-        RUSSIAN_NAMES.put("Dina", "Дина");
-        RUSSIAN_NAMES.put("Dmitry", "Дмитрий");
-        RUSSIAN_NAMES.put("Ekaterina", "Екатерина");
-        RUSSIAN_NAMES.put("Elena", "Елена");
-        RUSSIAN_NAMES.put("Eugene", "Евгений");
-        RUSSIAN_NAMES.put("Gennady", "Геннадий");
-        RUSSIAN_NAMES.put("Ian", "Ян");
-        RUSSIAN_NAMES.put("Igor", "Игорь");
-        RUSSIAN_NAMES.put("Ilya", "Илья");
-        RUSSIAN_NAMES.put("Inna", "Инна");
-        RUSSIAN_NAMES.put("Irina", "Инрина");
-        RUSSIAN_NAMES.put("Ivan", "Иван");
-        RUSSIAN_NAMES.put("Jury", "Юрий");
-        RUSSIAN_NAMES.put("Kirill", "Кирилл");
-        RUSSIAN_NAMES.put("Konstantin", "Константин");
-        RUSSIAN_NAMES.put("Larissa", "Лариса");
-        RUSSIAN_NAMES.put("Matvey", "Матвей");
-        RUSSIAN_NAMES.put("Maxim", "Максим");
-        RUSSIAN_NAMES.put("Mikhail", "Михаил");
-        RUSSIAN_NAMES.put("Natalia", "Наталья");
-        RUSSIAN_NAMES.put("Nikita", "Никита");
-        RUSSIAN_NAMES.put("Nikolay", "Николай");
-        RUSSIAN_NAMES.put("Oleg", "Олег");
-        RUSSIAN_NAMES.put("Olga", "Ольга");
-        RUSSIAN_NAMES.put("Oxana", "Оксана");
-        RUSSIAN_NAMES.put("Pavel", "Павел");
-        RUSSIAN_NAMES.put("Philipp", "Филипп");
-        RUSSIAN_NAMES.put("Roman", "Роман");
-        RUSSIAN_NAMES.put("Ruslan", "Руслан");
-        RUSSIAN_NAMES.put("Sergey", "Сергей");
-        RUSSIAN_NAMES.put("Stanislav", "Станислав");
-        RUSSIAN_NAMES.put("Stela", "Стелла");
-        RUSSIAN_NAMES.put("Svetlana", "Светлана");
-        RUSSIAN_NAMES.put("Tatiana", "Татьяна");
-        RUSSIAN_NAMES.put("Vasily", "Василий");
-        RUSSIAN_NAMES.put("Victor", "Виктор");
-        RUSSIAN_NAMES.put("Viktoria", "Виктория");
-        RUSSIAN_NAMES.put("Vladimir", "Владимир");
-        RUSSIAN_NAMES.put("Yulia", "Юлия");
-        RUSSIAN_NAMES.put("Zoya", "Зоя");
+        RUSSIAN_NAMES.put("alexander", "александр");
+        RUSSIAN_NAMES.put("alexandra", "александра");
+        RUSSIAN_NAMES.put("alexei", "алексей");
+        RUSSIAN_NAMES.put("alexey", "алексей");
+        RUSSIAN_NAMES.put("alla", "алла");
+        RUSSIAN_NAMES.put("anatoly", "анатолий");
+        RUSSIAN_NAMES.put("andrei", "андрей");
+        RUSSIAN_NAMES.put("andrew", "андрей");
+        RUSSIAN_NAMES.put("andrey", "андрей");
+        RUSSIAN_NAMES.put("anna", "анна");
+        RUSSIAN_NAMES.put("anton", "антон");
+        RUSSIAN_NAMES.put("arseniy", "арсений");
+        RUSSIAN_NAMES.put("artem", "артем");
+        RUSSIAN_NAMES.put("boris", "борис");
+        RUSSIAN_NAMES.put("damir", "дамир");
+        RUSSIAN_NAMES.put("denis", "денис");
+        RUSSIAN_NAMES.put("dina", "дина");
+        RUSSIAN_NAMES.put("dmitry", "дмитрий");
+        RUSSIAN_NAMES.put("ekaterina", "екатерина");
+        RUSSIAN_NAMES.put("elena", "елена");
+        RUSSIAN_NAMES.put("eugene", "евгений");
+        RUSSIAN_NAMES.put("gennady", "геннадий");
+        RUSSIAN_NAMES.put("ian", "ян");
+        RUSSIAN_NAMES.put("igor", "игорь");
+        RUSSIAN_NAMES.put("ilya", "илья");
+        RUSSIAN_NAMES.put("inna", "инна");
+        RUSSIAN_NAMES.put("irina", "инрина");
+        RUSSIAN_NAMES.put("ivan", "иван");
+        RUSSIAN_NAMES.put("jury", "юрий");
+        RUSSIAN_NAMES.put("kirill", "кирилл");
+        RUSSIAN_NAMES.put("konstantin", "константин");
+        RUSSIAN_NAMES.put("larissa", "лариса");
+        RUSSIAN_NAMES.put("matvey", "матвей");
+        RUSSIAN_NAMES.put("maxim", "максим");
+        RUSSIAN_NAMES.put("mikhail", "михаил");
+        RUSSIAN_NAMES.put("natalia", "наталья");
+        RUSSIAN_NAMES.put("nikita", "никита");
+        RUSSIAN_NAMES.put("nikolay", "николай");
+        RUSSIAN_NAMES.put("oleg", "олег");
+        RUSSIAN_NAMES.put("olga", "ольга");
+        RUSSIAN_NAMES.put("oxana", "оксана");
+        RUSSIAN_NAMES.put("pavel", "павел");
+        RUSSIAN_NAMES.put("philipp", "филипп");
+        RUSSIAN_NAMES.put("roman", "роман");
+        RUSSIAN_NAMES.put("ruslan", "руслан");
+        RUSSIAN_NAMES.put("sasha", "саша");
+        RUSSIAN_NAMES.put("sergey", "сергей");
+        RUSSIAN_NAMES.put("stanislav", "станислав");
+        RUSSIAN_NAMES.put("stela", "стелла");
+        RUSSIAN_NAMES.put("svetlana", "светлана");
+        RUSSIAN_NAMES.put("tatiana", "татьяна");
+        RUSSIAN_NAMES.put("vasily", "василий");
+        RUSSIAN_NAMES.put("victor", "виктор");
+        RUSSIAN_NAMES.put("viktoria", "виктория");
+        RUSSIAN_NAMES.put("vladimir", "владимир");
+        RUSSIAN_NAMES.put("yulia", "юлия");
+        RUSSIAN_NAMES.put("zoya", "зоя");
     }
 
     private static final String[][] TRANSLITERAL_TABLE = {
@@ -97,7 +97,7 @@ public class RussianNameConverter {
             {"ju","ю"},
             {"je","е"},
             {"jo","ё"},
-            {"io","ё"},
+//            {"io","ё"},
             {"ch","ч"},
             {"cz","ц"},
             {"sh","ш"},
@@ -116,6 +116,7 @@ public class RussianNameConverter {
             {"e","е"},
             {"z","з"},
             {"i","и"},
+            {"j","ж"},
             {"h","х"},
             {"k","к"},
             {"l","л"},
@@ -138,32 +139,44 @@ public class RussianNameConverter {
 
     private String firstName, lastName, middleName;
 
-    public void convertName(String name) {
+    public void convertName(String name, String _firstName, String _middleName, String _lastName) {
+        firstName = lastName = middleName = null;
         String[] names = name.split("\\s+");
         if (names.length == 2) {
-            middleName = null;
-            String rFirstName1 = RUSSIAN_NAMES.get(names[0]);
-            String rFirstName2 = RUSSIAN_NAMES.get(names[1]);
-            if (rFirstName1 != null) {
-                firstName = rFirstName1;
-                lastName = convertToRussian(names[1]);
-            } else if (rFirstName2 != null) {
-                firstName = rFirstName2;
-                lastName = convertToRussian(names[0]);
-            } else {
-//                log.debug("Name not found : " + name);
-                firstName = names[0];
-                lastName = names[1];
-            }
+            checkRussianName(names[0], _middleName, names[1]);
         } else if (names.length == 3) {
-//            log.debug("3 names : " + name);
-            firstName = names[0];
-            middleName = names[1];
-            lastName = names[2];
+            if (_middleName == null || _middleName.length() < names[1].length()) {
+                _middleName = names[1];
+            }
+            checkRussianName(names[0], _middleName, names[2]);
         } else {
             log.warn("Unknown name length : " + name);
             firstName = names[0];
         }
+    }
+
+    private void checkRussianName(String _firstName, String _middleName, String _lastName) {
+        String rFirstName1 = RUSSIAN_NAMES.get(_firstName.toLowerCase());
+        String rFirstName2 = RUSSIAN_NAMES.get(_lastName.toLowerCase());
+        if (rFirstName1 != null) {
+            firstName = rFirstName1;
+            lastName = convertToRussian(_lastName);
+        } else if (rFirstName2 != null) {
+            firstName = rFirstName2;
+            lastName = convertToRussian(_firstName);
+//        } else if (RUSSIAN_NAMES.containsValue(_firstName)) {
+//            firstName = _firstName;
+//            lastName = _lastName;
+        } else if (RUSSIAN_NAMES.containsValue(_lastName.toLowerCase())) {
+            firstName = _lastName;
+            middleName = _middleName;
+        } else {
+        //                log.debug("Name not found : " + name);
+            firstName = _firstName;
+            lastName = _lastName;
+        }
+        middleName = _middleName == null ? null :
+                (rFirstName1 != null || rFirstName2 != null ? convertToRussian(_middleName) : _middleName);
     }
 
     public String getFirstName() {

@@ -98,6 +98,10 @@ public class DbTableRow extends EventGeneratorBase<Row> implements Row {
         return indexInBounds;
     }
 
+    public void clearData() {
+        Arrays.fill(rowData, null);
+    }
+
     public void commitInsert() {
         index = dbTable.commitInsert(rowData);
     }

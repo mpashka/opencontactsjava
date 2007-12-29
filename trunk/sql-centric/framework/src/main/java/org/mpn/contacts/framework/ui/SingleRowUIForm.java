@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:pmoukhataev@dev.java.net">Pavel Moukhataev</a>
@@ -65,41 +66,51 @@ public class SingleRowUIForm {
         return createTextField(dbFieldMetadata).getUiComponent();
     }
 
+    public JTextField createJDateField(Field<Date> dbFieldMetadata) {
+        return createDateField(dbFieldMetadata).getUiComponent();
+    }
+
     public JTextField createJIntegerField(Field<Integer> dbFieldMetadata) {
         return createIntegerField(dbFieldMetadata).getUiComponent();
     }
 
     public UiTextField createTextField(Field<String> dbFieldMetadata) {
         UiTextField uiTextField = new UiTextField();
-        addUiComponent(uiTextField, dbFieldMetadata, row);
+        addUiComponent(uiTextField, dbFieldMetadata);
         return uiTextField;
+    }
+
+    public UiDateField createDateField(Field<Date> dbFieldMetadata) {
+        UiDateField uiDateField = new UiDateField();
+        addUiComponent(uiDateField, dbFieldMetadata);
+        return uiDateField;
     }
 
     public UiIntegerField createIntegerField(Field<Integer> dbFieldMetadata) {
         UiIntegerField uiIntegerField = new UiIntegerField();
-        addUiComponent(uiIntegerField, dbFieldMetadata, row);
+        addUiComponent(uiIntegerField, dbFieldMetadata);
         return uiIntegerField;
     }
 
     public UiComboBoxFixed createComboBoxFixed(Field<Long> dbFieldMetadata, DataSource referTable, Field<Long> referIdField, Field<String> referStringField) {
         UiComboBoxFixed uiComboBoxFixed = new UiComboBoxFixed(referTable, referIdField, referStringField);
-        addUiComponent(uiComboBoxFixed, dbFieldMetadata, row);
+        addUiComponent(uiComboBoxFixed, dbFieldMetadata);
         return uiComboBoxFixed;
     }
 
     public UiComboBoxEditable createComboBoxEditable(Field<Long> dbFieldMetadata, DataSource referTable, Field<Long> referIdField, Field<String> referStringField) {
         UiComboBoxEditable uiComboBoxEditable = new UiComboBoxEditable(referTable, referIdField, referStringField);
-        addUiComponent(uiComboBoxEditable, dbFieldMetadata, row);
+        addUiComponent(uiComboBoxEditable, dbFieldMetadata);
         return uiComboBoxEditable;
     }
 
     public UiComboBoxCached createComboBoxCached(Field<Long> dbFieldMetadata, DataSource referTable, Field<Long> referIdField, Field<String> referStringField) {
         UiComboBoxCached uiComboBoxCached = new UiComboBoxCached(referTable, referIdField, referStringField);
-        addUiComponent(uiComboBoxCached, dbFieldMetadata, row);
+        addUiComponent(uiComboBoxCached, dbFieldMetadata);
         return uiComboBoxCached;
     }
 
-    public <DataType> void addUiComponent(UiComponent<DataType, ?> uiComponent, Field<DataType> dbFieldMetaData, Row row) {
+    public <DataType> void addUiComponent(UiComponent<DataType, ?> uiComponent, Field<DataType> dbFieldMetaData) {
         DbUiComponent<DataType> dbUiComponent = new DbUiComponent<DataType>(uiComponent, dbFieldMetaData, row);
         dbUiComponent.update();
         dbUiComponents.add(dbUiComponent);

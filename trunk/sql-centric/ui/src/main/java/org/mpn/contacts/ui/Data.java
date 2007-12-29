@@ -47,7 +47,7 @@ public interface Data {
     Field<String> organizationAddress = new Field<String>(String.class, "organizationAddress");
 //    Field<String> organizationPhone = new Field<String>(String.class, "organizationPhone");
     Field<String> organizationNote = new Field<String>(String.class, "organizationNote");
-    DbTable organizationTable = new DbTable("organization", organizationName, streetTable.id, organizationName, organizationAddress,
+    DbTable organizationTable = new DbTable("organization", organizationName, streetTable.id, organizationAddress,
 //            organizationPhone,
             phone, organizationNote);
 
@@ -71,7 +71,7 @@ public interface Data {
     Field<Date> personBirthday = new Field<Date>(Date.class, "personBirthday");
     Field<Boolean> personGender = new Field<Boolean>(Boolean.class, "personGender");
     Field<String> personNote = new Field<String>(String.class, "personNote");
-    DbTable personTable = new DbTable("person", personFirstName, personMiddleName, personLastName, personBirthday, personGender, personNote);
+    DbTable personTable = new DbTable("person", personFirstName, personMiddleName, personLastName, personBirthday, personGender, phone, personNote);
 
 
     Field<String> personPhoneNote = new Field<String>(String.class, "personPhoneNote");
@@ -79,9 +79,10 @@ public interface Data {
 
 
     Field<String> personOrganizationLocation = new Field<String>(String.class, "personOrganizationLocation");
+    Field<String> personOrganizationPosition = new Field<String>(String.class, "personOrganizationPosition");
     Field<String> personOrganizationDepartment = new Field<String>(String.class, "personOrganizationDepartment");
     DbTable personOrganizationTable = new DbTable("personOrganization", organizationTable.id, //organizationLocationTable.id,
-            personTable.id, personOrganizationLocation, personOrganizationDepartment, phone, email,
+            personTable.id, personOrganizationLocation, personOrganizationDepartment, personOrganizationPosition, phone, email,
 //            organizationLocationPhone,
             notes);
 
@@ -98,7 +99,7 @@ public interface Data {
 //    DbTable messagingTypeTable = new DbTable("imTypes", messagingType, messagingTypeNote, messagingTypeOnline);
 
 
-    Field<String> personMessagingId = new Field<String>(String.class, "personMessagingId");
+    Field<String> personMessagingId = new Field<String>(String.class, "personMessaging");
     Field<String> personMessagingType = new Field<String>(String.class, "personMessagingType");
     Field<String> personMessagingNote = new Field<String>(String.class, "personMessagingNote");
     Field<Boolean> personMessagingWork = new Field<Boolean>(Boolean.class, "personMessagingWork");
@@ -109,9 +110,10 @@ public interface Data {
     Field<String> personNickNote = new Field<String>(String.class, "personNickNote");
     DbTable personNickTable = new DbTable("personNick", personNick, personNickNote, personTable.id);
 
+    Field<String> autoConvertName = new Field<String>(String.class, "autoConvertName");
     Field<String> autoConvertNote = new Field<String>(String.class, "autoConvertNote");
     Field<String> autoConvertApplication = new Field<String>(String.class, "autoConvertApplication");
-    DbTable autoConvertNotesTable = new DbTable("autoConvertNotes", autoConvertNote, autoConvertApplication, personTable.id);
+    DbTable autoConvertNotesTable = new DbTable("autoConvertNotes", autoConvertName, autoConvertNote, autoConvertApplication, personTable.id);
 
     Field<String> relationTypeName = new Field<String>(String.class, "relationTypeName");
     Field<String> relationTypeNote = new Field<String>(String.class, "relationTypeNote");

@@ -17,17 +17,13 @@ import org.mpn.contacts.framework.db.DataSource;
 import org.mpn.contacts.framework.db.Field;
 import org.mpn.contacts.framework.db.Row;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 /**
  * todo [!] Create javadocs for org.mpn.contacts.framework.ui.UiComboBoxEditable here
  *
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class UiComboBoxFixed extends UiComponent<Long, JComboBox> {
+public class UiComboBoxFixed extends UiComboBox {
 
     private DataSource referTable;
     private Field<Long> referIdField;
@@ -53,35 +49,6 @@ public class UiComboBoxFixed extends UiComponent<Long, JComboBox> {
             String text = referTableRow.getData(referStringField);
             uiComponent.addItem(new UiComboBoxItem(id, text));
         } 
-    }
-
-    public JComboBox createUiComponent() {
-        JComboBox comboBox = new JComboBox();
-        comboBox.setEditable(false);
-        comboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                notifyListeners(UiComboBoxFixed.this);
-            }
-        });
-        return comboBox;
-    }
-
-    public Long getData() {
-        return ((UiComboBoxItem) uiComponent.getSelectedItem()).getId();
-    }
-
-    public void setData(Long data) {
-        for (int i = 0; i < uiComponent.getItemCount(); i++) {
-            UiComboBoxItem comboBoxItem = (UiComboBoxItem) uiComponent.getItemAt(i);
-            if (comboBoxItem.getId().equals(data)) {
-                uiComponent.setSelectedItem(comboBoxItem);
-                return;
-            }
-        }
-    }
-
-    public Long getDefaultValue() {
-        return 0l;
     }
 
 }
