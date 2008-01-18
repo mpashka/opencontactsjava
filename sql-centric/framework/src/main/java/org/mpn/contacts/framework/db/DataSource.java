@@ -12,18 +12,19 @@
  */
 package org.mpn.contacts.framework.db;
 
-import org.mpn.contacts.framework.EventGenerator;
-
 /**
  * todo [!] Create javadocs for org.mpn.contacts.framework.db.DataSource here
  *
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public interface DataSource extends EventGenerator<DataSource>, Iterable<Row> {
+public interface DataSource extends Iterable<Row> {
+
+    void addListener(DataSourceListener listener);
+    void removeListener(DataSourceListener listener);
 
     Field<Long> getIdField();
-    
+
     String getName();
 
     Field[] getFieldsMetaData();
@@ -34,6 +35,11 @@ public interface DataSource extends EventGenerator<DataSource>, Iterable<Row> {
 
 //    DbTableRow getDefaultRow();
 
+    /**
+     * Add new row into table, return index of newly inserted row
+     * @param fieldsData row data
+     * @return index of newly inserted row
+     */
     int commitInsert(Object[] fieldsData);
 
     void commitUpdate(Object[] fieldsData);

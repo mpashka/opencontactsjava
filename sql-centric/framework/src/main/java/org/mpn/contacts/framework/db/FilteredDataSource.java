@@ -50,6 +50,14 @@ public class FilteredDataSource extends EventGeneratorBase<DataSource> implement
         readData();
     }
 
+    public void addListener(DataSourceListener listener) {
+        dbTable.addListener(listener);
+    }
+
+    public void removeListener(DataSourceListener listener) {
+        dbTable.removeListener(listener);
+    }
+
     public Field<Long> getIdField() {
         return dbTable.getIdField();
     }

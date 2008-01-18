@@ -14,9 +14,9 @@ package org.mpn.contacts.framework.ui;
 
 import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.db.DataSource;
+import org.mpn.contacts.framework.db.DataSourceListener;
 import org.mpn.contacts.framework.db.Field;
 import org.mpn.contacts.framework.db.Row;
-import org.mpn.contacts.framework.EventListener;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -87,8 +87,18 @@ public class UiComboBoxCached extends UiComponent<Long, JComboBox> implements Co
         this.referIdField = referIdField;
         this.referStringField = referStringField;
 
-        referTable.addListener(new EventListener<DataSource>() {
-            public void onEvent(DataSource source) {
+        referTable.addListener(new DataSourceListener() {
+            public void onInsert(int rowIndex, Object[] fieldsData) {
+                readData();
+                fireModelChanged();
+            }
+
+            public void onUpdate(int rowIndex, Object[] fieldsData) {
+                readData();
+                fireModelChanged();
+            }
+
+            public void onDelete(int rowIndex, Object[] fieldsData) {
                 readData();
                 fireModelChanged();
             }

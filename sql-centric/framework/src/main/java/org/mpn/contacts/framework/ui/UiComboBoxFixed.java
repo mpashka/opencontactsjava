@@ -12,8 +12,8 @@
  */
 package org.mpn.contacts.framework.ui;
 
-import org.mpn.contacts.framework.EventListener;
 import org.mpn.contacts.framework.db.DataSource;
+import org.mpn.contacts.framework.db.DataSourceListener;
 import org.mpn.contacts.framework.db.Field;
 import org.mpn.contacts.framework.db.Row;
 
@@ -34,9 +34,20 @@ public class UiComboBoxFixed extends UiComboBox {
         this.referIdField = referIdField;
         this.referStringField = referStringField;
 
-        referTable.addListener(new EventListener<DataSource>() {
-            public void onEvent(DataSource source) {
+        referTable.addListener(new DataSourceListener() {
+            public void onInsert(int rowIndex, Object[] fieldsData) {
                 readData();
+//                fireModelChanged();
+            }
+
+            public void onUpdate(int rowIndex, Object[] fieldsData) {
+                readData();
+//                fireModelChanged();
+            }
+
+            public void onDelete(int rowIndex, Object[] fieldsData) {
+                readData();
+//                fireModelChanged();
             }
         });
         readData();
@@ -48,7 +59,7 @@ public class UiComboBoxFixed extends UiComboBox {
             Long id = referTableRow.getData(referIdField);
             String text = referTableRow.getData(referStringField);
             uiComponent.addItem(new UiComboBoxItem(id, text));
-        } 
+        }
     }
 
 }

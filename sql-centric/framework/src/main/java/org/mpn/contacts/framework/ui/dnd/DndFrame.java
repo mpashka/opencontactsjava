@@ -35,7 +35,7 @@ public class DndFrame extends JInternalFrame implements RowImportable {
 
     private MDIDesktopPane desktop = new MDIDesktopPane();
 
-    private Map<DataSource, DndTable> tables = new HashMap<DataSource, DndTable>();
+    private Map<DataSource, EmptyDndTable> tables = new HashMap<DataSource, EmptyDndTable>();
 
     public DndFrame(String title) {
         super(title);
@@ -47,16 +47,28 @@ public class DndFrame extends JInternalFrame implements RowImportable {
     public void importRow(Row row) {
         log.debug("Importing row to dnd frame : " + row);
         DataSource dataSource = row.getDataSource();
-        DndTable table = tables.get(dataSource);
+        EmptyDndTable table = tables.get(dataSource);
         if (table == null) {
-            table = new DndTable(dataSource);
+            table = new EmptyDndTable(dataSource);
             tables.put(dataSource, table);
             int count = tables.size();
-            table.setLocation(count * xOffset, count * yOffset);
+            JInternalFrame jTable = createTableFrame(dataSource, table.getJTable());
+            jTable.setLocation(count * xOffset, count * yOffset);
 
-            desktop.add(table);
+            desktop.add(jTable);
             log.debug("New table created : " + table);
         }
         table.addRow(row);
+    }
+
+    private JInternalFrame createTableFrame(DataSource dataSource, JTable jTable) {
+        JInternalFrame internalFrame = new JInternalFrame(dataSource.getName(), true, true, true, true);
+
+        internalFrame.getContentPane().add(new JScrollPane(jTable), BorderLayout.CENTER);
+        internalFrame.setMinimumSize(new Dimension(100, 50));
+        internalFrame.setSize(new Dimension(150, 100));
+        internalFrame.setVisible(true);
+
+        return internalFrame;
     }
 }
