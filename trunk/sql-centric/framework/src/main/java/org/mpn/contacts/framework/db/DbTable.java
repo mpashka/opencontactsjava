@@ -2,8 +2,8 @@ package org.mpn.contacts.framework.db;
 
 import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.ContactsException;
-import org.mpn.contacts.framework.Value;
 import org.mpn.contacts.framework.EventGeneratorBase;
+import org.mpn.contacts.framework.Value;
 import org.mpn.contacts.framework.db.filter.FixedValueFilter;
 
 import java.sql.PreparedStatement;
@@ -46,6 +46,8 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
     private PreparedStatement updateDataPreparedStatement;
 
     private final Map<Field, Integer> fieldIndexes = new HashMap<Field, Integer>();
+
+    private Set<DataSourceListener> listeners = new HashSet<DataSourceListener>();
 
     public DbTable(String name, Field... fields) {
         this.name = name;
@@ -155,7 +157,11 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
             Object[] newFieldData = new Object[fieldsData.length];
             System.arraycopy(fieldsData, 0, newFieldData, 0, fieldsData.length);
             tableData.add(newFieldData);
-            return tableData.size() - 1;
+            int rowIndex = tableData.size() - 1;
+            for (DataSourceListener dataSourceListener : listeners) {
+                dataSourceListener.onInsert(rowIndex, fieldsData);
+            }
+            return rowIndex;
         } catch (SQLException e) {
             log.error("Error description", e);
             throw new ContactsException("Error description", e);
@@ -175,8 +181,16 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
             }
             dbAccess.commit();
 
-            Object[] newFieldData = findRowById((Long) fieldsData[0]);
+            int rowIndex = findRowById((Long) fieldsData[0]);
+            if (rowIndex == -1) {
+                log.error("Can't find updatebale row for ID : " + fieldsData[0] + " in the table " + name);
+                return;
+            }
+            Object[] newFieldData = tableData.get(rowIndex);
             System.arraycopy(fieldsData, 0, newFieldData, 0, fieldsData.length);
+            for (DataSourceListener dataSourceListener : listeners) {
+                dataSourceListener.onUpdate(rowIndex, fieldsData);
+            }
         } catch (SQLException e) {
             log.error("Error description", e);
             throw new ContactsException("Error description", e);
@@ -187,11 +201,20 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
         // todo [!] unsupported
     }
 
-    private Object[] findRowById(Long id) {
-        for (Object[] fields : tableData) {
-            if (fields[0].equals(id)) return fields;
+    public void addListener(DataSourceListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(DataSourceListener listener) {
+        listeners.remove(listener);
+    }
+
+    private int findRowById(Long id) {
+        for (ListIterator<Object[]> iterator = tableData.listIterator(); iterator.hasNext();) {
+            Object[] fields = iterator.next();
+            if (fields[0].equals(id)) return iterator.previousIndex();
         }
-        return null;
+        return -1;
     }
 
     public Row getOriginalRow(int index) {

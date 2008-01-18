@@ -66,6 +66,10 @@ public class SingleRowUIForm {
         return createTextField(dbFieldMetadata).getUiComponent();
     }
 
+    public JTextArea createJTextArea(Field<String> dbFieldMetadata) {
+        return createTextArea(dbFieldMetadata).getUiComponent();
+    }
+
     public JTextField createJDateField(Field<Date> dbFieldMetadata) {
         return createDateField(dbFieldMetadata).getUiComponent();
     }
@@ -78,6 +82,12 @@ public class SingleRowUIForm {
         UiTextField uiTextField = new UiTextField();
         addUiComponent(uiTextField, dbFieldMetadata);
         return uiTextField;
+    }
+
+    public UiTextArea createTextArea(Field<String> dbFieldMetadata) {
+        UiTextArea uiTextArea = new UiTextArea();
+        addUiComponent(uiTextArea, dbFieldMetadata);
+        return uiTextArea;
     }
 
     public UiDateField createDateField(Field<Date> dbFieldMetadata) {

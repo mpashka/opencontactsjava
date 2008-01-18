@@ -72,6 +72,8 @@ public interface Row extends EventGenerator<Row>, Iterator<Row> {
 
     int getIndex();
 
+    void setIndex(int index);
+
     boolean hasData();
 
     void clearData();

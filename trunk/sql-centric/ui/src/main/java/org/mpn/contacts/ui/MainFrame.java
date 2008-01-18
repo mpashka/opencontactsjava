@@ -4,6 +4,7 @@ import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.builder.ButtonStackBuilder;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.layout.CellConstraints;
 import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.db.DataSource;
@@ -21,6 +22,7 @@ import org.mpn.contacts.framework.ui.UiComboBoxAbstract;
 import org.mpn.contacts.framework.ui.UiComboBoxFixed;
 import org.mpn.contacts.framework.ui.dnd.DndFrame;
 import org.mpn.contacts.framework.ui.dnd.RowPanel;
+import org.mpn.contacts.framework.ui.dnd.DataSourceTable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -120,7 +122,7 @@ public class MainFrame {
 
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Boolean booleanValue = (Boolean) value;
-            String text = booleanValue == null ? "" : (booleanValue.booleanValue() ? "male" : "female");
+            String text = booleanValue == null ? "" : (booleanValue ? "male" : "female");
             return rendenrer.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
         }
     }
@@ -129,36 +131,38 @@ public class MainFrame {
         Row userRow = Data.personTable.getRow();
         SingleRowUIForm userUiForm = new SingleRowUIForm(userRow);
 
-        FormLayout layout = new FormLayout("right:pref, 3dlu, max(40dlu;pref)");
+        FormLayout layout = new FormLayout("right:pref:grow(0.1), 3dlu, fill:pref:grow");
+        CellConstraints cc = new CellConstraints();
         JPanel userDetailsPanel = new RowPanel(userUiForm.getRow());
         DefaultFormBuilder formBuilder = new DefaultFormBuilder(layout, userDetailsPanel);
         formBuilder.setDefaultDialogBorder();
 
         formBuilder.appendSeparator("General");
-        formBuilder.append("First name");
-        formBuilder.append(userUiForm.createJTextField(Data.personFirstName));
-        formBuilder.append("Middle name");
-        formBuilder.append(userUiForm.createJTextField(Data.personMiddleName));
-        formBuilder.append("Last name");
-        formBuilder.append(userUiForm.createJTextField(Data.personLastName));
-        formBuilder.append("Birthday");
-        formBuilder.append(userUiForm.createJDateField(Data.personBirthday));
-        formBuilder.append("Gender");
+        formBuilder.append("First name", userUiForm.createJTextField(Data.personFirstName));
+        formBuilder.append("Middle name", userUiForm.createJTextField(Data.personMiddleName));
+        formBuilder.append("Last name", userUiForm.createJTextField(Data.personLastName));
+        formBuilder.append("Birthday", userUiForm.createJDateField(Data.personBirthday));
         UiComboBoxAbstract<Boolean> genderUiComboBox = new UiComboBoxAbstract<Boolean>();
         JComboBox genderComboBox = genderUiComboBox.getUiComponent();
         genderComboBox.setRenderer(new GenderRenderer(genderComboBox.getRenderer()));
-        formBuilder.append(genderComboBox);
         userUiForm.addUiComponent(genderUiComboBox, Data.personGender);
+        formBuilder.append("Gender", genderComboBox);
         formBuilder.append("Note");
-        formBuilder.append(userUiForm.createJTextField(Data.personNote));
+        formBuilder.appendRow(new RowSpec("17dlu"));
+        formBuilder.add(new JScrollPane(userUiForm.createJTextArea(Data.personNote)),
+                    cc.xywh(formBuilder.getColumn(), formBuilder.getRow(), 1, 2));
+        formBuilder.nextLine(2);
 
-        CellConstraints cc = new CellConstraints();
         formBuilder.appendSeparator("Address");
+        formBuilder.nextLine();
+        formBuilder.appendRow(new RowSpec("75dlu"));
 
-        formBuilder.add(new JLabel("aaa"), cc.xywh(1, formBuilder.getRow(), 2, 4));
-        formBuilder.appendSeparator("General2");
-        formBuilder.add(new JLabel("bbb"), cc.xywh(1, formBuilder.getRow(), 2, 4));
-        formBuilder.appendSeparator("General3");
+        RowValue<Long> personId = new RowValue<Long>(userRow, Data.personTable.id);
+        DataSource personAddressDataSource = Data.addressPersonTable.getFilteredTable(Data.personTable.id, personId);
+        DataSourceTable personAddressTable = new DataSourceTable(personAddressDataSource);
+
+        formBuilder.add(new JScrollPane(personAddressTable.getJTable()),
+                    cc.xywh(formBuilder.getColumn(), formBuilder.getRow(), 3, 1));
 
 //        formBuilder.append("E-mail");
 //        formBuilder.append(userUiForm.createJTextField(Data.personEmail));
@@ -171,15 +175,10 @@ public class MainFrame {
         buttonsBarBuilder.addGridded(new JButton(new RowRollbackAction(userUiForm)));
 
         JInternalFrame userDetailsWindow = new JInternalFrame("User data", true, true, true, true);
-        userDetailsWindow.add(userDetailsPanel, BorderLayout.CENTER);
-        userDetailsWindow.add(buttonsBarBuilder.getPanel(), BorderLayout.SOUTH);
+        Container userDetailsContent = userDetailsWindow.getContentPane();
+        userDetailsContent.add(userDetailsPanel, BorderLayout.CENTER);
+        userDetailsContent.add(buttonsBarBuilder.getPanel(), BorderLayout.SOUTH);
         addNewInternalFrame(userDetailsWindow);
-    }
-
-    private void createAddressTable(Row userRow) {
-        RowValue<Long> personId = new RowValue<Long>(userRow, Data.personTable.id);
-        DataSource personAddressDataSource = Data.addressPersonTable.getFilteredTable(Data.personTable.id, personId);
-        
     }
 
     public void createTownDialog() {

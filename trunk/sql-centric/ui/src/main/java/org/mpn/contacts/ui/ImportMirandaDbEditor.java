@@ -30,7 +30,7 @@ import java.util.Arrays;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class ImportMirandaDbEditor {
+public class ImportMirandaDbEditor extends Importer {
 
     static final Logger log = Logger.getLogger(ImportMirandaDbEditor.class);
 
@@ -46,6 +46,10 @@ public class ImportMirandaDbEditor {
     String contactName;
     Map<String, Map<String, String>> contactProperties = new HashMap<String, Map<String, String>>();
     Map<String, String> contactSectionProperties;
+
+    public ImportMirandaDbEditor() {
+        super("Miranda ini", false);
+    }
 
     public void doImport(File mirandaContactsFile) throws IOException {
         InputStream in = new FileInputStream(mirandaContactsFile);
@@ -215,6 +219,30 @@ public class ImportMirandaDbEditor {
 
         if (!protocolProps.isEmpty()) {
             log.debug("Unknown properties found : " + protocolProps);
+        }
+
+        // Do import
+        addMessaging(id, protocol.toLowerCase());
+
+        setPhonesHome(phone);
+        setPhoneMobile(phoneCellCar);
+        setAbout(about);
+        setFullName(fullName);
+        setLastName(lastName);
+        setNick(nick);
+        setCity(city);
+        setCountry(country);
+        setAge(age);
+        setBirthDay(birthYear, birthMonth, birthDay);
+        setCompany(company);
+        setCompanyCountry(companyCountry);
+        setCompanyCity(companyCity);
+        setCompanyPersonPosition(companyPosition);
+        setCompanyOccupation(companyOccupation);
+        setCompanyPhone(companyPhone);
+        setHomepage(homepage);
+        if (gender != null) {
+            setGender(gender.equals("77"));
         }
 
         contactProperties.clear();

@@ -508,6 +508,20 @@ public class Importer {
         this.birthDay = birthDay;
     }
 
+    public void setBirthDay(String year, String month, String day) {
+        if (year == null && month == null && day == null) return;
+        try {
+            Calendar calendar = new GregorianCalendar(
+                    Integer.parseInt(year),
+                    Integer.parseInt(month),
+                    Integer.parseInt(day)
+            );
+            birthDay = calendar.getTime();
+        } catch (Exception e) {
+            this.birthDayString = year + "/" + month + "/" + day;
+        }
+    }
+
     public void setCompany(String company) {
         this.company = company;
     }

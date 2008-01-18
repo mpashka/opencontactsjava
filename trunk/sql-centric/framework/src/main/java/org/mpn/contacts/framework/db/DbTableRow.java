@@ -79,6 +79,10 @@ public class DbTableRow extends EventGeneratorBase<Row> implements Row {
         return index;
     }
 
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public boolean update() {
         boolean indexInBounds = false;
         int rowCount = dbTable.getRowCount();

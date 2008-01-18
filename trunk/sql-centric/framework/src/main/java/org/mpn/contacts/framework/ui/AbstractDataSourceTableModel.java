@@ -10,18 +10,16 @@
  *
  * $Id$
  */
-package org.mpn.contacts.framework.ui.dnd;
+package org.mpn.contacts.framework.ui;
 
 import org.mpn.contacts.framework.db.DataSource;
 import org.mpn.contacts.framework.db.Row;
 
-import javax.swing.*;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableModel;
-import java.util.List;
 import java.util.ArrayList;
-import java.awt.*;
+import java.util.List;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.framework.ui.dnd.DndTable here
@@ -29,52 +27,17 @@ import java.awt.*;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class DndTable extends JInternalFrame implements TableModel, RowExportable, RowImportable {
+public abstract class AbstractDataSourceTableModel implements TableModel {
 
     private DataSource dataSource;
-    private List<Row> rows = new ArrayList<Row>();
     private List<TableModelListener> tableModelListeners = new ArrayList<TableModelListener>();
 
-    private JTable table;
-
-    public DndTable(DataSource dataSource) {
-        super(dataSource.getName(), true, true, true, true);
+    public AbstractDataSourceTableModel(DataSource dataSource) {
         this.dataSource = dataSource;
-        table = new JTable(this);
-        table.setDragEnabled(true);
-        table.setTransferHandler(RowTransferHandler.INSTANCE);
-        DragMouseAdapter.addDragSupport(table);
-
-        getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
-        setMinimumSize(new Dimension(100, 50));
-        setSize(new Dimension(150, 100));
-        setVisible(true);
     }
 
-    public Row exportRow() {
-        int index = table.getSelectedRow();
-        return index >= 0 ? rows.get(index) : null;
-    }
-
-    public void importRow(Row row) {
-        if (!row.getDataSource().equals(dataSource)) {
-            JOptionPane.showMessageDialog(this, "Row data source " + row.getDataSource() + " is not equals to" +
-                    " this table data source " + dataSource);
-        } else {
-            addRow(row);
-        }
-    }
-
-    public void addRow(Row row) {
-        rows.add(row);
-        TableModelEvent e = new TableModelEvent(this, rows.size() - 1, rows.size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
-        for (TableModelListener tableModelListener : tableModelListeners) {
-            tableModelListener.tableChanged(e);
-        }
-    }
-
-    public int getRowCount() {
-        return rows.size();
+    public DataSource getDataSource() {
+        return dataSource;
     }
 
     public int getColumnCount() {
@@ -94,9 +57,11 @@ public class DndTable extends JInternalFrame implements TableModel, RowExportabl
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Row row = rows.get(rowIndex);
+        Row row = getRow(rowIndex);
         return row.getData()[columnIndex];
     }
+
+    public abstract Row getRow(int rowIndex);
 
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         throw new UnsupportedOperationException();
@@ -109,5 +74,13 @@ public class DndTable extends JInternalFrame implements TableModel, RowExportabl
     public void removeTableModelListener(TableModelListener l) {
         tableModelListeners.remove(l);
     }
+
+    protected void notifyTableChanged(int firstRow, int lastRow, int type) {
+        TableModelEvent e = new TableModelEvent(this, firstRow, lastRow, TableModelEvent.ALL_COLUMNS, type);
+        for (TableModelListener tableModelListener : tableModelListeners) {
+            tableModelListener.tableChanged(e);
+        }
+    }
+
 
 }
