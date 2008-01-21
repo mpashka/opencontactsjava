@@ -23,14 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * todo [!] Create javadocs for org.mpn.contacts.ui.ImportMirandaDbEditor here
+ * todo [!] Create javadocs for org.mpn.contacts.ui.ImportMirandaDbEditorIni here
  *
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class ImportMirandaDbEditor extends Importer {
+public class ImportMirandaDbEditorIni extends Importer {
 
-    static final Logger log = Logger.getLogger(ImportMirandaDbEditor.class);
+    static final Logger log = Logger.getLogger(ImportMirandaDbEditorIni.class);
 
     static final class PropertiesGroup {
         private Map<String, String> stringProperties = new HashMap<String, String>();
@@ -67,7 +67,7 @@ public class ImportMirandaDbEditor extends Importer {
     Map<String, PropertiesGroup> contactProperties = new HashMap<String, PropertiesGroup>();
     PropertiesGroup contactSectionProperties;
 
-    public ImportMirandaDbEditor() {
+    public ImportMirandaDbEditorIni() {
         super("Miranda ini", false);
     }
 
@@ -349,6 +349,6 @@ public class ImportMirandaDbEditor extends Importer {
 
     public static void main(String[] args) throws IOException {
 //        log.debug("Default charset : " + DEFAULT_CHARSET);
-        new ImportMirandaDbEditor().doImport(new File("C:\\Personal\\Contacts\\2007_11_21\\miranda_contacts-err-dec.ini"));
+        new ImportMirandaDbEditorIni().doImport(new File("C:\\Personal\\Contacts\\2007_11_21\\miranda_contacts-err-dec.ini"));
     }
 }
