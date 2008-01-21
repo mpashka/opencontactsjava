@@ -70,7 +70,7 @@ public class Importer {
     private Set<String> phonesHome;
     private String about;
     private String country;
-    private String age;
+    private Integer age;
 
     private Date birthDay;
     private String birthDayString;
@@ -216,7 +216,9 @@ public class Importer {
         addComment("City", city);
         addComment("About", about);
         addComment("Country", country);
-        addComment("Age", age);
+        if (birthDay == null) {
+            addComment("Age", age);
+        }
         addComment("birthDayString", birthDayString);
         addComment("homepage", homepage);
 
@@ -496,7 +498,7 @@ public class Importer {
         this.country = country;
     }
 
-    public void setAge(String age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
@@ -508,17 +510,22 @@ public class Importer {
         this.birthDay = birthDay;
     }
 
-    public void setBirthDay(String year, String month, String day) {
+    public void setBirthDay(Integer year, Integer month, Integer day) {
         if (year == null && month == null && day == null) return;
-        try {
-            Calendar calendar = new GregorianCalendar(
-                    Integer.parseInt(year),
-                    Integer.parseInt(month),
-                    Integer.parseInt(day)
-            );
-            birthDay = calendar.getTime();
-        } catch (Exception e) {
+        if (year == null || month == null || day == null) {
             this.birthDayString = year + "/" + month + "/" + day;
+        } else {
+            try {
+                Calendar calendar = new GregorianCalendar(
+                        year,
+                        month,
+                        day
+                );
+                birthDay = calendar.getTime();
+            } catch (Exception e) {
+                log.warn("Error importing birthday");
+                this.birthDayString = year + "/" + month + "/" + day;
+            }
         }
     }
 
