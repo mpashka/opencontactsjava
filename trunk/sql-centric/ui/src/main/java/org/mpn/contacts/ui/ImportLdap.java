@@ -108,10 +108,10 @@ public class ImportLdap extends Importer {
         setCompanyPersonPosition(companyPosition);
 
         String homePhone = section.get("homePhone");
-        setPhonesHome(homePhone);
+        addPhoneHome(homePhone);
 
         String mobilePhone = section.get("mobile");
-        setPhoneMobile(mobilePhone);
+        addPhoneMobile(mobilePhone);
 
         String department = section.get("department");
         setCompanyDepartment(department);

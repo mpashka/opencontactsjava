@@ -106,9 +106,9 @@ public interface Data {
     DbTable personMessagingTable = new DbTable("personMessaging", personTable.id, personMessagingId, personMessagingType, personMessagingNote, personMessagingWork);
 
 
-    Field<String> personNick = new Field<String>(String.class, "personNick");
-    Field<String> personNickNote = new Field<String>(String.class, "personNickNote");
-    DbTable personNickTable = new DbTable("personNick", personNick, personNickNote, personTable.id);
+//    Field<String> personNick = new Field<String>(String.class, "personNick");
+//    Field<String> personNickNote = new Field<String>(String.class, "personNickNote");
+//    DbTable personNickTable = new DbTable("personNick", personNick, personNickNote, personTable.id);
 
     Field<String> autoConvertName = new Field<String>(String.class, "autoConvertName");
     Field<String> autoConvertNote = new Field<String>(String.class, "autoConvertNote");
@@ -122,10 +122,10 @@ public interface Data {
     Field<String> personRelationNote = new Field<String>(String.class, "relationTypeNote");
     DbTable personRelationTable = new DbTable("personRelation", relationTypeTable.id, personRelationNote, personTable.id);
 
-//    Field<String> personGroupID = new Field<String>(String.class, "personGroupID");
+    Field<String> personGroupID = new Field<String>(String.class, "personGroupID");
     Field<String> personGroupName = new Field<String>(String.class, "personGroupName");
     Field<String> personGroupNote = new Field<String>(String.class, "personGroupNote");
-    DbTable personGroupTable = new DbTable("personGroup", personGroupName, personGroupNote);
+    DbTable personGroupTable = new DbTable("personGroup", personGroupID, personGroupName, personGroupNote);
 
     DbTable personGroupsTable = new DbTable("personGroups", personGroupTable.id, personTable.id);
 
