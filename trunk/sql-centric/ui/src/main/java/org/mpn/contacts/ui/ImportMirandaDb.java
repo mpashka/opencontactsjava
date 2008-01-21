@@ -27,14 +27,14 @@ import java.util.HashMap;
 import java.nio.charset.Charset;
 
 /**
- * todo [!] Create javadocs for org.mpn.contacts.ui.ImportMiranda here
+ * todo [!] Create javadocs for org.mpn.contacts.ui.ImportMirandaDb here
  *
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class ImportMiranda {
+public class ImportMirandaDb {
 
-    static final Logger log = Logger.getLogger(ImportMiranda.class);
+    static final Logger log = Logger.getLogger(ImportMirandaDb.class);
 
     Map<Integer, DBModuleName> moduleNames = new HashMap<Integer, DBModuleName>();
 
@@ -475,6 +475,6 @@ public class ImportMiranda {
         File contactFile = new File("C:\\Projects\\jContacts\\.data\\test\\mirandaDbImport\\pavelmoukhataev.dat");
 //        FileInputStream in = new FileInputStream(contactFile);
 
-        new ImportMiranda().readDatabase(contactFile);
+        new ImportMirandaDb().readDatabase(contactFile);
     }
 }
