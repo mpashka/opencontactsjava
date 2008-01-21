@@ -22,6 +22,8 @@ import java.io.RandomAccessFile;
 import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.nio.charset.Charset;
 
 /**
@@ -33,6 +35,8 @@ import java.nio.charset.Charset;
 public class ImportMiranda {
 
     static final Logger log = Logger.getLogger(ImportMiranda.class);
+
+    Map<Integer, DBModuleName> moduleNames = new HashMap<Integer, DBModuleName>();
 
     private final class DBHeader {
         private static final int SIGNATURE_LENGTH = 16;
@@ -209,20 +213,23 @@ public class ImportMiranda {
                     break;
 
                 case DBVT_BYTE:
-                    skipBytes(1);
+                    readByte();
+//                    skip(1);
                     break;
 
                 case DBVT_WORD:
-                    skipBytes(2);
+                    readWord();
+//                    skip(2);
                     break;
 
                 case DBVT_DWORD:
-                    skipBytes(4);
+                    readDWord();
+//                    skip(4);
                     break;
 
                 case DBVT_BLOB:
                     int blobLength = readWord();
-                    skipBytes(blobLength);
+                    skip(blobLength);
 //                    log.debug("Blob data : " + szName);
                     break;
 
@@ -257,6 +264,8 @@ public class ImportMiranda {
         DBSetting[] dbSettings;             //the blob. a back-to-back sequence of DBSetting
         //structs, the last has cbName=0
 
+        DBModuleName moduleName;
+
         public void write() throws IOException {
             writeDWord(signature);
             writeDWord(ofsNext);
@@ -285,6 +294,14 @@ public class ImportMiranda {
                 dbSettingsList.add(dbSetting);
             }
             dbSettings = dbSettingsList.toArray(new DBSetting[dbSettingsList.size()]);
+
+            moduleName = moduleNames.get(ofsModuleName);
+            if (moduleName == null) {
+                moduleName = new DBModuleName();
+                seek(ofsModuleName);
+                moduleName.read();
+                moduleNames.put(ofsModuleName, moduleName);
+            }
         }
 
     }
@@ -335,8 +352,12 @@ public class ImportMiranda {
 
     private RandomAccessFile in;
 
-    public void skipBytes(int length) throws IOException {
+    public void skip(int length) throws IOException {
         in.skipBytes(length);
+    }
+
+    public void seek(long pos) throws IOException {
+        in.seek(pos);
     }
 
     public byte[] readBytes(int length) throws IOException {
@@ -451,7 +472,7 @@ public class ImportMiranda {
     }
 
     public static void main(String[] args) throws Exception {
-        File contactFile = new File("C:\\pavelmoukhataev.dat");
+        File contactFile = new File("C:\\Projects\\jContacts\\.data\\test\\mirandaDbImport\\pavelmoukhataev.dat");
 //        FileInputStream in = new FileInputStream(contactFile);
 
         new ImportMiranda().readDatabase(contactFile);

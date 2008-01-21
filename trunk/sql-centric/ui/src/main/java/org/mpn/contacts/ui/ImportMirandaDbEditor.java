@@ -21,8 +21,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.Arrays;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.ImportMirandaDbEditor here
@@ -34,18 +32,40 @@ public class ImportMirandaDbEditor extends Importer {
 
     static final Logger log = Logger.getLogger(ImportMirandaDbEditor.class);
 
+    static final class PropertiesGroup {
+        private Map<String, String> stringProperties = new HashMap<String, String>();
+        private Map<String, Integer> integerProperties = new HashMap<String, Integer>();
+
+        public void addString(String name, String value) {
+            stringProperties.put(name, value);
+        }
+
+        public void addInteger(String name, int value) {
+            integerProperties.put(name, value);
+        }
+
+        public String getString(String name) {
+            return stringProperties.get(name);
+        }
+
+        public Integer getInteger(String name) {
+            return integerProperties.get(name);
+        }
+    }
+
     private static final byte[] buffer = new byte[100000];
 
     private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
     private static final Charset DEFAULT_CHARSET = Charset.forName("Cp1251");
 
     private static final byte[] CONTACT_SIGNATURE = "CONTACT: ".getBytes();
+    private static final byte[] SETTINGS_SIGNATURE = "SETTINGS:".getBytes();
 
     boolean eof = false;
 
     String contactName;
-    Map<String, Map<String, String>> contactProperties = new HashMap<String, Map<String, String>>();
-    Map<String, String> contactSectionProperties;
+    Map<String, PropertiesGroup> contactProperties = new HashMap<String, PropertiesGroup>();
+    PropertiesGroup contactSectionProperties;
 
     public ImportMirandaDbEditor() {
         super("Miranda ini", false);
@@ -61,12 +81,13 @@ public class ImportMirandaDbEditor extends Importer {
             } else if (lineBytes[0] == '[') {
                 String sectionName = new String(lineBytes, 1, lineBytes.length - 2);
 //                log.debug("Section :" + sectionName);
-                contactSectionProperties = new HashMap<String, String>();
+                contactSectionProperties = new PropertiesGroup();
                 contactProperties.put(sectionName, contactSectionProperties);
             } else if (startsWith(lineBytes, CONTACT_SIGNATURE)) {
                 if (contactName != null) {
                     parseContact();
                 }
+                contactProperties.clear();
 
                 for (int i = lineBytes.length - 1; i >= CONTACT_SIGNATURE.length; i--) {
                     if (lineBytes[i] == ' ') {
@@ -82,6 +103,8 @@ public class ImportMirandaDbEditor extends Importer {
                         break;
                     }
                 }
+            } else if (startsWith(lineBytes, SETTINGS_SIGNATURE)) {
+                // Settings section - ignore
             } else {
                 readLineString(lineBytes);
             }
@@ -92,32 +115,32 @@ public class ImportMirandaDbEditor extends Importer {
     private void parseContact() {
 //        log.debug("Contact : " + contactName + ", properties :" + contactProperties);
 
-        String customName = contactProperties.get("CList").get("MyHandle");
-        String groupName = contactProperties.get("CList").get("Group");
+        contactName = contactProperties.get("CList").getString("MyHandle");
+        String groupName = contactProperties.get("CList").getString("Group");
 
-        Map<String, String> contactPhoto = contactProperties.get("ContactPhoto");
+        PropertiesGroup contactPhoto = contactProperties.get("ContactPhoto");
         if (contactPhoto != null) {
-            String photoPath = contactPhoto.get("File");
+            String photoPath = contactPhoto.getString("File");
             if (photoPath != null) {
 
             }
         }
 
-        String protocol = contactProperties.get("Protocol").get("p");
-        Map<String, String> protocolProps = contactProperties.get(protocol);
+        String protocol = contactProperties.get("Protocol").getString("p");
+        PropertiesGroup protocolProps = contactProperties.get(protocol);
         String id;
         if ("ICQ".equals(protocol)) {
-            id = protocolProps.get("UIN");
+            id = String.valueOf(protocolProps.getInteger("UIN"));
         } else if ("JABBER".equals(protocol)) {
-            id = protocolProps.get("jid");
-            String isTransport = protocolProps.get("IsTransport");
-            if (isTransport.equals("1")) {
+            id = protocolProps.getString("jid");
+            Integer isTransport = protocolProps.getInteger("IsTransport");
+            if (isTransport.equals(1)) {
                 // This is JABBER transport - don't import
                 return;
             }
-            boolean isTransported = "1".equals(protocolProps.get("IsTransported"));
+            boolean isTransported = Integer.valueOf(1).equals(protocolProps.getInteger("IsTransported"));
             if (isTransported) {
-                String transport = protocolProps.get("Transport");
+                String transport = protocolProps.getString("Transport");
                 int alpPos = id.indexOf('@');
                 id = id.substring(0, alpPos);
                 if (transport.startsWith("msn.")) {
@@ -130,42 +153,42 @@ public class ImportMirandaDbEditor extends Importer {
                 }
             }
         } else if ("SKYPE".equals(protocol)) {
-            id = protocolProps.get("Username");
+            id = protocolProps.getString("Username");
         } else {
             log.debug("Unknown protocol : " + protocol);
             return;
         }
 
 
-        String phone = protocolProps.get("Phone");
-        String phoneCellCar = protocolProps.get("Cellucar");
-        String about = protocolProps.get("About");
-        String fullName = protocolProps.get("FullName");
-        String firstName = protocolProps.get("FirstName");
-        String lastName = protocolProps.get("LastName");
-        String nick = protocolProps.get("Nick");
-        String city = protocolProps.get("City");
-        String country = protocolProps.get("Country");
-        String age = protocolProps.get("Age");
-        String birthYear = protocolProps.get("BirthYear");
-        String birthMonth = protocolProps.get("BirthMonth");
-        String birthDay = protocolProps.get("BirthDay");
-        String company = protocolProps.get("Company");
-        String companyCountry = protocolProps.get("CompanyCountry");
-        String companyPosition = protocolProps.get("CompanyPosition");
-        String companyOccupation = protocolProps.get("CompanyOccupation");
-        String companyPhone = protocolProps.get("CompanyPhone");
-        String companyCity = protocolProps.get("CompanyCity");
-        String homepage = protocolProps.get("Homepage");
-        String gender = protocolProps.get("Gender");
+        String phone = protocolProps.getString("Phone");
+        String phoneCellCar = protocolProps.getString("Cellucar");
+        String about = protocolProps.getString("About");
+        String fullName = protocolProps.getString("FullName");
+        String firstName = protocolProps.getString("FirstName");
+        String lastName = protocolProps.getString("LastName");
+        String nick = protocolProps.getString("Nick");
+        String city = protocolProps.getString("City");
+        String country = protocolProps.getString("Country");
+        Integer age = protocolProps.getInteger("Age");
+        Integer birthYear = protocolProps.getInteger("BirthYear");
+        Integer birthMonth = protocolProps.getInteger("BirthMonth");
+        Integer birthDay = protocolProps.getInteger("BirthDay");
+        String company = protocolProps.getString("Company");
+        String companyCountry = protocolProps.getString("CompanyCountry");
+        String companyPosition = protocolProps.getString("CompanyPosition");
+        String companyOccupation = protocolProps.getString("CompanyOccupation");
+        String companyPhone = protocolProps.getString("CompanyPhone");
+        String companyCity = protocolProps.getString("CompanyCity");
+        String homepage = protocolProps.getString("Homepage");
+        Integer gender = protocolProps.getInteger("Gender");
 
         
         int languageIndex = 1;
         String lastLanguage;
         while (true) {
-            lastLanguage = protocolProps.get("Language" + languageIndex++);
+            lastLanguage = protocolProps.getString("Language" + languageIndex++);
             if (lastLanguage != null) {
-                // todo [!] store language
+                addComment("Language", lastLanguage);
             } else {
                 break;
             }
@@ -175,16 +198,17 @@ public class ImportMirandaDbEditor extends Importer {
         String interestCategory, interestText;
         int interestIndex = 0;
         while (true) {
-            interestCategory = protocolProps.get("Interest" + interestIndex + "Cat");
-            interestText = protocolProps.get("Interest" + interestIndex + "Text");
+            interestCategory = protocolProps.getString("Interest" + interestIndex + "Cat");
+            interestText = protocolProps.getString("Interest" + interestIndex + "Text");
             if (interestCategory != null || interestText != null) {
-                // todo [!] store intereset
+                addComment("Interest", interestCategory + " -> " + interestText);
             } else {
                 break;
             }
             interestIndex++;
         }
 
+        /*
         List<String> knownProperties = Arrays.asList(
                 "Phone",
                 "About",
@@ -220,6 +244,7 @@ public class ImportMirandaDbEditor extends Importer {
         if (!protocolProps.isEmpty()) {
             log.debug("Unknown properties found : " + protocolProps);
         }
+        */
 
         // Do import
         addMessaging(id, protocol.toLowerCase());
@@ -228,6 +253,7 @@ public class ImportMirandaDbEditor extends Importer {
         setPhoneMobile(phoneCellCar);
         setAbout(about);
         setFullName(fullName);
+        setFirstName(firstName);
         setLastName(lastName);
         setNick(nick);
         setCity(city);
@@ -242,10 +268,10 @@ public class ImportMirandaDbEditor extends Importer {
         setCompanyPhone(companyPhone);
         setHomepage(homepage);
         if (gender != null) {
-            setGender(gender.equals("77"));
+            setGender((gender & 1) == 1);
         }
 
-        contactProperties.clear();
+//        addComment("Group");
     }
 
     private boolean startsWith(byte[] string, byte[] start) {
@@ -266,9 +292,25 @@ public class ImportMirandaDbEditor extends Importer {
                 if (length == 0) {
 //                    log.debug("Empty value : " + paramName);
                 }
-                String value = new String(lineBytes, i + 2, length, paramType == 'u' ? UTF_8_CHARSET : determineLineCharset(lineBytes, i+2, length));
-//                log.debug(paramName + "=" + value);
-                contactSectionProperties.put(paramName, value);
+                switch (paramType) {
+                    case 'u':
+                    case 's':
+                        String value = new String(lineBytes, i + 2, length, paramType == 'u' ? UTF_8_CHARSET : determineLineCharset(lineBytes, i+2, length));
+//                      log.debug(paramName + "=" + value);
+                        contactSectionProperties.addString(paramName, value);
+                        break;
+
+                    case 'b':
+                    case 'w':
+                    case 'd':
+                        String valueStr = new String(lineBytes, i + 2, length);
+                        contactSectionProperties.addInteger(paramName, Integer.parseInt(valueStr));
+                        break;
+
+                    default:
+                        log.error("Unknown param type " + paramType);
+                }
+
             }
         }
     }
