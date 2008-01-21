@@ -213,11 +213,11 @@ public class ImportHtml extends Importer {
         }
         if (homePhoneIndex != -1) {
             String homePhone = columnValues.get(homePhoneIndex).getText();
-            setPhonesHome(homePhone);
+            addPhoneHome(homePhone);
         }
         if (mobilePhoneIndex != -1) {
             String mobilePhone = columnValues.get(mobilePhoneIndex).getText();
-            setPhoneMobile(mobilePhone);
+            addPhoneMobile(mobilePhone);
         }
         if (pictureIndex != -1) {
             List<String> pictures = columnValues.get(pictureIndex).getImages();

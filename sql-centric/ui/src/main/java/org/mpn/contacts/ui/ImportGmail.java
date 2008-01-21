@@ -12,11 +12,14 @@ package org.mpn.contacts.ui;
 import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.db.DbAccess;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.ImportGmail here
@@ -24,12 +27,9 @@ import java.util.regex.Matcher;
  * @author $Author $
  * @version $Revision$
  */
-public class ImportGmail extends Importer {
+public class ImportGmail extends ImportCsv {
 
     static final Logger log = Logger.getLogger(ImportGmail.class);
-
-    private static final Charset UTF8_CHARSET = Charset.forName("UTF8");
-    private static final Charset UNICODE_CHARSET = Charset.forName("UTF-16");
 
     private static final String SECTION_HEADER_NAME = "Раздел";
     private static final String SECTION_HEADER_VALUE = "Описание";
@@ -37,14 +37,6 @@ public class ImportGmail extends Importer {
     private static final String FIELD_NAME_MOBILE = "Мобильный";
     private static final String FILED_NAME_EMAIL = "Электронная почта";
     private static final String FIELD_NAME_PHONE = "Телефон";
-
-    private static final String[] INTERNET_DOMAINS = {
-            "com", "ru", "org", "edu", "gov", "jp", "info", "biz", "tv",
-    };
-
-    static {
-        Arrays.sort(INTERNET_DOMAINS);
-    }
 
     private final class GmailContactSectionMetainfo {
         String[] fieldNames;
@@ -71,7 +63,6 @@ public class ImportGmail extends Importer {
         }
     }
 
-    private boolean eof;
     private int fieldNumber;
 
     public ImportGmail() {
@@ -143,63 +134,6 @@ public class ImportGmail extends Importer {
         fileReader.close();
     }
 
-    private String[] parseLine(String line) {
-        return line.split(",");
-    }
-
-    private String[] parseLine(BufferedReader fileReader) throws IOException {
-        List<String> strings = new ArrayList<String>();
-        boolean eol = false;
-        do {
-            int nextCharInt;
-            nextCharInt = fileReader.read();
-            if (nextCharInt == '\r') {
-                nextCharInt = fileReader.read();
-            }
-
-            StringBuilder token = new StringBuilder();
-            if (nextCharInt == '"') {
-                while (true) {
-                    nextCharInt = fileReader.read();
-                    if (nextCharInt == '"') {
-                        nextCharInt = fileReader.read();
-                        if (nextCharInt == ',') {
-                            break;
-                        } else if (nextCharInt == '\n') {
-                            eol = true;
-                            break;
-                        } else if (nextCharInt == -1) {
-                            eol = true;
-                            eof = true;
-                            break;
-                        }
-                    }
-                    token.append((char) nextCharInt);
-                }
-            } else {
-                while (true) {
-                    if (token.length() > 0) {
-                        nextCharInt = fileReader.read();
-                    }
-                    if (nextCharInt == ',') {
-                        break;
-                    } else if (nextCharInt == '\n') {
-                        eol = true;
-                        break;
-                    } else if (nextCharInt == -1) {
-                        eol = true;
-                        eof = true;
-                        break;
-                    }
-                    token.append((char) nextCharInt);
-                }
-            }
-            strings.add(token.length() > 0 ? token.toString() : null);
-        } while (!eol);
-        return strings.toArray(new String[strings.size()]);
-    }
-
-
 
     private void importGmailContact(String name, String email, String notes, List<GmailContactSection> sections) {
         Pattern pattern = null;
@@ -244,11 +178,11 @@ public class ImportGmail extends Importer {
                     }
                 } else {
                     if (fieldName.equals(FIELD_NAME_MOBILE)) {
-                        setPhoneMobile(fieldValue);
+                        addPhoneMobile(fieldValue);
                     } else if (fieldName.equals(FILED_NAME_EMAIL)) {
                         log.error("E-mail is not valid : " + fieldValue);
                     } else if (fieldName.equals(FIELD_NAME_PHONE)) {
-                        setPhonesHome(fieldValue);
+                        addPhoneHome(fieldValue);
                     } else {
                         addComment(gmailContactSection.name + "." + fieldName, fieldValue);
                     }

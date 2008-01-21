@@ -32,12 +32,13 @@ import java.nio.charset.Charset;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class ImportMirandaDb {
+public class ImportMirandaDb extends ImportMiranda {
 
     static final Logger log = Logger.getLogger(ImportMirandaDb.class);
 
     Map<Integer, DBModuleName> moduleNames = new HashMap<Integer, DBModuleName>();
 
+    
     private final class DBHeader {
         private static final int SIGNATURE_LENGTH = 16;
 //        BYTE signature[16];      // 'Miranda ICQ DB',0,26
@@ -92,6 +93,8 @@ public class ImportMirandaDb {
         }
     }
 
+
+
     private static final int DBCONTACT_SIGNATURE = 0x43DECADE;
 
     private final class DBContact {
@@ -137,6 +140,7 @@ public class ImportMirandaDb {
     }
 
 
+
     private static final int DBMODULENAME_SIGNATURE = 0x4DDECADE;
 
     private final class DBModuleName {
@@ -161,6 +165,8 @@ public class ImportMirandaDb {
         }
     }
 
+
+
     private static final int DBVT_DELETED = 0;    //this setting just got deleted, no other values are valid
     private static final int DBVT_BYTE = 1;      //bVal and cVal are valid
     private static final int DBVT_WORD = 2;      //wVal and sVal are valid
@@ -173,9 +179,6 @@ public class ImportMirandaDb {
     private static final int DBVTF_DENYUNICODE = 0x10000;
 
     private static final int DBCONTACTSETTINGS_SIGNATURE = 0x53DECADE;
-
-    private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
-    private static final Charset DEFAULT_CHARSET = Charset.forName("Cp1251");
 
     private final class DBSetting {
 //      int cbName;			//BYTE: number of bytes in the name of this setting
@@ -204,27 +207,28 @@ public class ImportMirandaDb {
             // todo [!] write body
         }
 
-        public void read(String settingName) throws IOException {
+        public void read(String settingName, PropertiesGroup propertiesGroup) throws IOException {
             szName = settingName;
             dataType = readByte();
+            int value;
             switch (dataType) {
                 case DBVT_DELETED:
 //                    log.debug("Deleted field : " + szName);
                     break;
 
                 case DBVT_BYTE:
-                    readByte();
-//                    skip(1);
+                    value = readByte();
+                    propertiesGroup.addInteger(settingName,  value);
                     break;
 
                 case DBVT_WORD:
-                    readWord();
-//                    skip(2);
+                    value = readWord();
+                    propertiesGroup.addInteger(settingName,  value);
                     break;
 
                 case DBVT_DWORD:
-                    readDWord();
-//                    skip(4);
+                    value = readDWord();
+                    propertiesGroup.addInteger(settingName,  value);
                     break;
 
                 case DBVT_BLOB:
@@ -234,13 +238,15 @@ public class ImportMirandaDb {
                     break;
 
                 case DBVT_ASCIIZ:
-                    String aciiString = readString(DEFAULT_CHARSET);
-//                    log.debug("  [a] " + szName + " = " + aciiString);
+                    String asciiString = readString(/*DEFAULT_CHARSET*/ null);
+//                    log.debug("  [a] " + szName + " = " + asciiString);
+                    propertiesGroup.addString(settingName, asciiString);
                     break;
 
                 case DBVT_UTF8:
-                    String utf8string = readString(UTF_8_CHARSET);
+                    String utf8string = readString(UTF8_CHARSET);
 //                    log.debug("  [u] " + szName + " = " + utf8string);
+                    propertiesGroup.addString(settingName, utf8string);
                     break;
 
                 default:
@@ -250,6 +256,8 @@ public class ImportMirandaDb {
         }
 
     }
+
+
 
     private final class DBContactSettings {
         int signature;
@@ -277,7 +285,7 @@ public class ImportMirandaDb {
             writeByte(0);
         }
 
-        public void read() throws IOException {
+        public void read(Map<String, PropertiesGroup> contactProperties) throws IOException {
             signature = readDWord();
             if (signature != DBCONTACTSETTINGS_SIGNATURE) {
                 log.error("DBContactSettings Signature is incorrect : " + signature);
@@ -285,12 +293,13 @@ public class ImportMirandaDb {
             ofsNext = readDWord();
             ofsModuleName = readDWord();
             cbBlob = readDWord();
+            PropertiesGroup propertiesGroup = new PropertiesGroup();
             List<DBSetting> dbSettingsList = new ArrayList<DBSetting>();
             while (true) {
                 DBSetting dbSetting = new DBSetting();
                 String settingName = readAscii();
                 if (settingName.length() == 0) break;
-                dbSetting.read(settingName);
+                dbSetting.read(settingName, propertiesGroup);
                 dbSettingsList.add(dbSetting);
             }
             dbSettings = dbSettingsList.toArray(new DBSetting[dbSettingsList.size()]);
@@ -302,6 +311,8 @@ public class ImportMirandaDb {
                 moduleName.read();
                 moduleNames.put(ofsModuleName, moduleName);
             }
+
+            contactProperties.put(moduleName.name, propertiesGroup);
         }
 
     }
@@ -401,7 +412,7 @@ public class ImportMirandaDb {
     public String readString(Charset charset) throws IOException {
         int length = readWord();
         byte[] stringBytes = readBytes(length);
-        String string = new String(stringBytes, charset);
+        String string = new String(stringBytes, charset == null ? determineLineCharset(stringBytes, 0, stringBytes.length) : charset);
         return string;
     }
 
@@ -455,19 +466,21 @@ public class ImportMirandaDb {
         DBContact dbContact = new DBContact();
         dbContact.read();
 
-        List<DBContactSettings> dbContactSettingses = new ArrayList<DBContactSettings>();
+//        List<DBContactSettings> dbContactSettingses = new ArrayList<DBContactSettings>();
+        Map<String, PropertiesGroup> contactProperties = new HashMap<String, PropertiesGroup>();
         long settingPos = dbContact.ofsFirstSettings;
         while (true) {
 //            log.debug("  -------------------------------------------------------- Contact settings");
             DBContactSettings dbContactSettings = new DBContactSettings();
             in.seek(settingPos);
-            dbContactSettings.read();
+            dbContactSettings.read(contactProperties);
             settingPos = dbContactSettings.ofsNext;
             if (settingPos == 0) {
                 break;
             }
-            dbContactSettingses.add(dbContactSettings);
+//            dbContactSettingses.add(dbContactSettings);
         }
+        parseContact(contactProperties);
         return dbContact;
     }
 
