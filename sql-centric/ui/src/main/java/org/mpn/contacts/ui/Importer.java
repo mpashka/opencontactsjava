@@ -678,4 +678,75 @@ public class Importer {
     public void setPicture(byte[] picture) {
         this.picture = picture;
     }
+
+    public void setField(String fieldName, String fieldValue) {
+        if (fieldName.equals("messagingSkype")) {
+            messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_SKYPE});
+        } else if (fieldName.equals("messagingIcq")) {
+            messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_ICQ});
+        } else if (fieldName.equals("messagingJabber")) {
+            messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_JABBER});
+        } else if (fieldName.equals("messagingMobile")) {
+            messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_MOBILE});
+        } else if (fieldName.equals("messagingEmail")) {
+            messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_EMAIL});
+        } else if (fieldName.equals("fullName")) {
+            fullName = fieldValue;
+        } else if (fieldName.equals("firstName")) {
+            firstName = fieldValue;
+        } else if (fieldName.equals("middleName")) {
+            middleName = fieldValue;
+        } else if (fieldName.equals("lastName")) {
+            lastName = fieldValue;
+        } else if (fieldName.equals("nick")) {
+            nick = fieldValue;
+        } else if (fieldName.equals("group")) {
+            group = fieldValue;
+        } else if (fieldName.equals("phonesHome")) {
+            phonesHome.add(fieldValue);
+        } else if (fieldName.equals("city")) {
+            city = fieldValue;
+        } else if (fieldName.equals("address")) {
+            address = fieldValue;
+        } else if (fieldName.equals("country")) {
+            country = fieldValue;
+        } else if (fieldName.equals("age")) {
+            try {
+                age = Integer.parseInt(fieldValue);
+            } catch (NumberFormatException e) {
+                log.error("Error parsing age : " + fieldValue, e);
+            }
+        } else if (fieldName.equals("birthDayString")) {
+            birthDayString = fieldValue;
+        } else if (fieldName.equals("company")) {
+            company = fieldValue;
+        } else if (fieldName.equals("companyCountry")) {
+            companyCountry = fieldValue;
+        } else if (fieldName.equals("companyPersonPosition")) {
+            companyPersonPosition = fieldValue;
+        } else if (fieldName.equals("companyPersonEmail")) {
+            companyPersonEmail = fieldValue;
+        } else if (fieldName.equals("companyOccupation")) {
+            companyOccupation = fieldValue;
+        } else if (fieldName.equals("companyPersonEmail")) {
+            companyPersonEmail = fieldValue;
+        } else if (fieldName.equals("companyPhone")) {
+            companyPhone = fieldValue;
+        } else if (fieldName.equals("companyCity")) {
+            companyCity = fieldValue;
+        } else if (fieldName.equals("companyDepartment")) {
+            companyDepartment = fieldValue;
+        } else if (fieldName.equals("companyLocation")) {
+            companyLocation = fieldValue;
+        } else if (fieldName.equals("companyLocation")) {
+            companyLocation = fieldValue;
+        } else if (fieldName.equals("homepage")) {
+            homepage = fieldValue;
+        }
+
+//        private Date birthDay;
+//        private Boolean gender;
+
+
+    }
 }
