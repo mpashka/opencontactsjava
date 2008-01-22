@@ -36,11 +36,10 @@ public interface Data {
     Field<Integer> addressPersonNumber = new Field<Integer>(Integer.class, "addressPersonNumber");
     Field<String> addressPersonBuilding = new Field<String>(String.class, "addressPersonBuilding");
     Field<Integer> addressPersonAppartments = new Field<Integer>(Integer.class, "addressPersonAppartments");
-//    Field<String> addressPersonPhone = new Field<String>(String.class, "addressPersonPhone");
+    Field<String> addressPersonIndex = new Field<String>(String.class, "addressPersonIndex");
     Field<String> addressPersonNote = new Field<String>(String.class, "addressPersonNote");
     DbTable addressPersonTable = new DbTable("addressPerson", streetTable.id, addressPersonNumber, addressPersonBuilding, addressPersonAppartments,
-//            addressPersonPhone,
-            phone, addressPersonNote);
+            addressPersonIndex, phone, addressPersonNote);
 
 
     Field<String> organizationName = new Field<String>(String.class, "organizationName");

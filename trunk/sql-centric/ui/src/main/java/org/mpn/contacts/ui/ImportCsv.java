@@ -13,9 +13,13 @@
 package org.mpn.contacts.ui;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.ImportCsv here
@@ -30,6 +34,25 @@ public class ImportCsv extends Importer {
 
     public ImportCsv(String importerName, boolean importCompany) {
         super(importerName, importCompany);
+    }
+
+    public void doImport(File file, Map<String, String> fieldsMapping) throws IOException {
+        BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), DEFAULT_CHARSET));
+
+        String headerLine = fileReader.readLine();
+        String[] headers = parseLine(headerLine);
+
+        while (!eof) {
+            String[] contactInfoStrings = parseLine(fileReader);
+            for (int i = 0; i < contactInfoStrings.length; i++) {
+                String contactInfoString = contactInfoStrings[i];
+                if (contactInfoString != null && contactInfoString.length() > 0) {
+                    setField(headers[i], contactInfoString);
+                }
+            }
+            importContact();
+        }
+        fileReader.close();
     }
 
     protected String[] parseLine(String line) {

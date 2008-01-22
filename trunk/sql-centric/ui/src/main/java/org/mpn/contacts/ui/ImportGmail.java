@@ -16,8 +16,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,12 +35,10 @@ public class ImportGmail extends ImportCsv {
 
     static final Logger log = Logger.getLogger(ImportGmail.class);
 
-    private static final String SECTION_HEADER_NAME = "Раздел";
-    private static final String SECTION_HEADER_VALUE = "Описание";
+    private static final String GMAIL_PROPERTIES_FILE_NAME = "gmail.properties";
+    private static final String GMAIL_PROPERTIES_DELIMITER = "language";
 
-    private static final String FIELD_NAME_MOBILE = "Мобильный";
-    private static final String FILED_NAME_EMAIL = "Электронная почта";
-    private static final String FIELD_NAME_PHONE = "Телефон";
+    private static final String GMAIL_PROPERTY_NAME = "name";
 
     private final class GmailContactSectionMetainfo {
         String[] fieldNames;
@@ -64,15 +66,31 @@ public class ImportGmail extends ImportCsv {
     }
 
     private int fieldNumber;
+    private Map<String, Properties> propertyNames = new HashMap<String, Properties>();
+
+    private String SECTION_HEADER_NAME = "Раздел";
+    private String SECTION_HEADER_VALUE = "Описание";
+
+    private String FIELD_NAME_MOBILE = "Мобильный";
+    private String FILED_NAME_EMAIL = "Электронная почта";
+    private String FIELD_NAME_PHONE = "Телефон";
+
 
     public ImportGmail() {
         super("gmail", false);
+        try {
+            readHeaderFiles();
+        } catch (IOException e) {
+            log.error("Error reading gmail properties", e);
+        }
     }
 
     public void doImport(File file) throws Exception {
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), UNICODE_CHARSET));
         String headerLine = fileReader.readLine();
         String[] headers = parseLine(headerLine);
+        readHeaderNames(headers);
+
         List<GmailContactSectionMetainfo> contactSectionMetainfos = new ArrayList<GmailContactSectionMetainfo>();
         List<String> sectionNames = new ArrayList<String>();
         for (int i = 3; i < headers.length; i++) {
@@ -132,6 +150,48 @@ public class ImportGmail extends ImportCsv {
             importGmailContact(contactInfoStrings[0], contactInfoStrings[1], notes, sections);
         }
         fileReader.close();
+    }
+
+    private void readHeaderNames(String[] headers) {
+        Properties gmailHeaderNames = propertyNames.get(headers[0]);
+        if (gmailHeaderNames == null) {
+            log.error("Error recognizing gmail language : " + headers[0]);
+            return;
+        }
+
+        SECTION_HEADER_NAME = gmailHeaderNames.getProperty("section");
+        SECTION_HEADER_VALUE = gmailHeaderNames.getProperty("description");
+
+        FIELD_NAME_MOBILE = gmailHeaderNames.getProperty("mobile");
+        FILED_NAME_EMAIL = gmailHeaderNames.getProperty("email");
+        FIELD_NAME_PHONE = gmailHeaderNames.getProperty("phone");
+
+    }
+
+    private void readHeaderFiles() throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(GMAIL_PROPERTIES_FILE_NAME), UTF8_CHARSET));
+        Properties properties = new Properties();
+        String inLine;
+        while ((inLine = in.readLine()) != null) {
+            if (inLine.length() == 0) continue;
+            else if (inLine.charAt(0) == '#') continue;
+            int eqPos = inLine.indexOf('=');
+            if (eqPos == -1) {
+                log.error("Error reading gmail properties. No eq in line : " + inLine);
+                continue;
+            }
+            String name = inLine.substring(0, eqPos).trim().toLowerCase();
+            String value = inLine.substring(eqPos + 1).trim();
+            if (name.equalsIgnoreCase(GMAIL_PROPERTIES_DELIMITER)) {
+                propertyNames.put(properties.getProperty(GMAIL_PROPERTY_NAME), properties);
+                properties = new Properties();
+            } else {
+                properties.setProperty(name, value);
+            }
+        }
+        if (!properties.isEmpty()) {
+            propertyNames.put(properties.getProperty(GMAIL_PROPERTY_NAME), properties);
+        }
     }
 
 
