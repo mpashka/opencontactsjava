@@ -34,19 +34,19 @@ public class ImportPalmDesktop extends ImportCsv {
         super("Palm", false);
     }
 
-    private void doImport(File file) throws IOException {
+    public void doImport(File file) throws IOException {
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), DEFAULT_CHARSET));
 
         while (!eof) {
             String[] contactInfoStrings = parseLine(fileReader);
 
-            importOutlookContact(contactInfoStrings);
+            importPalmContact(contactInfoStrings);
         }
         fileReader.close();
 
     }
 
-    private void importOutlookContact(String[] fields) {
+    private void importPalmContact(String[] fields) {
         String lastName = fields[0];
         setLastName(lastName);
 

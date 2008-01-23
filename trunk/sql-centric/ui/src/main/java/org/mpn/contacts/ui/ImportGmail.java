@@ -85,6 +85,20 @@ public class ImportGmail extends ImportCsv {
         }
     }
 
+    public void doImportFolder(File file) {
+        for (File file1 : file.listFiles()) {
+            if (file1.isFile() && file1.getName().toLowerCase().endsWith(".csv")) {
+                try {
+                    doImport(file1);
+                } catch (Exception e) {
+                    log.error("Error importing file : " + file1, e);
+                }
+            } else if (file1.isDirectory()) {
+                doImportFolder(file1);
+            }
+        }
+    }
+
     public void doImport(File file) throws Exception {
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), UNICODE_CHARSET));
         String headerLine = fileReader.readLine();

@@ -441,7 +441,7 @@ public class ImportMirandaDb extends ImportMiranda {
         in.write(v);
     }
 
-    private void readDatabase(File contactFile) throws IOException {
+    public void readDatabase(File contactFile) throws IOException {
         in = new RandomAccessFile(contactFile, "r");
         DBHeader dbHeader = new DBHeader();
         dbHeader.read();

@@ -46,8 +46,10 @@ public class ImportCsv extends Importer {
             String[] contactInfoStrings = parseLine(fileReader);
             for (int i = 0; i < contactInfoStrings.length; i++) {
                 String contactInfoString = contactInfoStrings[i];
+                String headerName = headers[i];
+                String mappedHeaderName = fieldsMapping.get(headerName);
                 if (contactInfoString != null && contactInfoString.length() > 0) {
-                    setField(headers[i], contactInfoString);
+                    setField(mappedHeaderName != null ? mappedHeaderName : headerName, contactInfoString);
                 }
             }
             importContact();
