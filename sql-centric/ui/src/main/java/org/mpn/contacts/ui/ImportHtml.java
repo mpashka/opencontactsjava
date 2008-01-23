@@ -34,6 +34,7 @@ import java.util.Set;
  */
 public class ImportHtml extends Importer {
     static final Logger log = Logger.getLogger(ImportHtml.class);
+    private String companyName;
     private File htmlFile;
 
     private abstract static class State {
@@ -121,11 +122,22 @@ public class ImportHtml extends Importer {
         super("html", true);
     }
 
-    public void doImport(File htmlFile) throws IOException {
+    public void doImportFolder(String companyName, File htmlFolder) throws IOException {
+        for (File file : htmlFolder.listFiles()) {
+            String fileName = file.getName();
+            if (fileName.endsWith(".htm")) {
+//                log.debug("File " + fileName);
+                doImport(companyName, file);
+            }
+        }
+    }
+
+    public void doImport(String companyName, File htmlFile) throws IOException {
+        this.companyName = companyName;
         this.htmlFile = htmlFile;
         BufferedReader in = new BufferedReader(new FileReader(htmlFile));
         columnNames = new ArrayList<String>();
-         state = TABLE_HEADER;
+        state = TABLE_HEADER;
         String inLine;
         while ((inLine = in.readLine()) != null) {
             state.readLine(inLine);
@@ -255,12 +267,6 @@ public class ImportHtml extends Importer {
 
 
         File htmlFolder = new File("C:\\Personal\\Contacts\\2007_11_19-jnetx-html\\jnetx\\web");
-        for (File file : htmlFolder.listFiles()) {
-            String fileName = file.getName();
-            if (fileName.endsWith(".htm")) {
-//                log.debug("File " + fileName);
-                importHtml.doImport(file);
-            }
-        }
+        importHtml.doImportFolder("jnetx", htmlFolder);
     }
 }

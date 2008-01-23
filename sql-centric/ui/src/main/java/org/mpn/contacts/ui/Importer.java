@@ -115,6 +115,14 @@ public class Importer {
         this.importCompany = importCompany;
     }
 
+    public boolean isImportCompany() {
+        return importCompany;
+    }
+
+    public void setImportCompany(boolean importCompany) {
+        this.importCompany = importCompany;
+    }
+
     protected boolean isEmail(String id) {
         if (id == null) return false;
         String lowCaseFieldValue = id.trim().toLowerCase();
@@ -142,19 +150,18 @@ public class Importer {
             }
         });
         rowComments = new HashSet<String[]>();
+        phonesHome = new HashSet<String>();
 
-        fullName = null;
-        firstName = null;
-        middleName = null;
-        lastName = null;
-        nick = null;
+        fullName = firstName = middleName = lastName = nick = null;
 
         city = null;
+        address = null;
+        country = null;
 
+        group = null;
 
         phonesHome = new HashSet<String>();
         about = null;
-        country = null;
         age = null;
 
         birthDay = null;
@@ -177,19 +184,27 @@ public class Importer {
     }
 
     public void importContact() {
-        // todo [!] process not only messaging-based contacts
+        nameConverter.convertName(fullName, firstName, middleName, lastName);
+        Long personId;
         if (messaging.isEmpty()) {
             log.warn("Nothing to convert - no messaging: " + fullName);
-            return;
+//            return;
+            if (firstName == null || lastName == null) {
+                log.error("No contact - no first name/last name/messaging " + this);
+                return;
+            }
+            personId = searchPersonByName();
+        } else {
+            personId = searchPersonByMessaging();
+            if (personId == null) {
+                personId = searchPersonByName();
+            }
         }
-
-        Long personId = searchPersonByMessaging();
 
         if (personId != null) {
             search(personTableRow, Data.personTable.id, personId);
         }
 
-        nameConverter.convertName(fullName, firstName, middleName, lastName);
         firstName = nameConverter.getFirstName();
         middleName = nameConverter.getMiddleName();
         lastName = nameConverter.getLastName();
@@ -305,6 +320,19 @@ public class Importer {
         }
     }
 
+    private Long searchPersonByName() {
+        Long personId = null;
+        for (personTableRow.startIteration(); personTableRow.hasNext(); personTableRow.next()) {
+            if (firstName.equals(personTableRow.getData(Data.personFirstName))
+                    &&
+                    lastName.equals(personTableRow.getData(Data.personLastName)))
+            {
+                return personTableRow.getId();
+            }
+        }
+        return null;
+    }
+
     private Long searchPersonByMessaging() {
         Long personId = null;
         for (String[] strings : messaging) {
@@ -346,6 +374,7 @@ public class Importer {
     }
 
     private Set<String> readPresentedPhones(Long personId) {
+        // todo [!] replace for with search() method
         Set<String> presentedPhonesHome = new HashSet<String>();
         if (personId != null) {
             // Read all home phones
@@ -738,15 +767,107 @@ public class Importer {
             companyDepartment = fieldValue;
         } else if (fieldName.equals("companyLocation")) {
             companyLocation = fieldValue;
-        } else if (fieldName.equals("companyLocation")) {
-            companyLocation = fieldValue;
         } else if (fieldName.equals("homepage")) {
             homepage = fieldValue;
+        } else if (fieldName.equals("about")) {
+            about = fieldValue;
+        } else if (fieldName.startsWith("comment")) {
+            addComment(fieldName.substring(7), fieldValue);
+        } else {
+            log.error("Unknown field name : " + fieldName, new Throwable());
+            addComment(fieldName, fieldValue);
         }
 
 //        private Date birthDay;
 //        private Boolean gender;
 
 
+    }
+
+    public String toString() {
+        StringBuilder contactStr = new StringBuilder();
+        for (String[] strings : messaging) {
+            contactStr.append("Messaging [").append(strings[1]).append("] ").append(strings[0]).append("\n");
+        }
+        contactStr.append("Name : ");
+        if (fullName != null) {
+            contactStr.append(fullName).append(" ");
+        }
+        if (firstName != null) {
+            contactStr.append(firstName).append(" ");
+        }
+        if (lastName != null) {
+            contactStr.append(lastName).append(" ");
+        }
+        if (middleName != null) {
+            contactStr.append(middleName).append(" ");
+        }
+        if (nick != null) {
+            contactStr.append(nick).append(" ");
+        }
+        contactStr.append("\n");
+
+        if (group != null) {
+            contactStr.append("group: ").append(group).append(" ,");
+        }
+        if (city != null) {
+            contactStr.append("city: ").append(city).append("city ,");
+        }
+        if (address != null) {
+            contactStr.append("address: ").append(address).append(" ,");
+        }
+        if (country != null) {
+            contactStr.append("country: ").append(country).append(" ,");
+        }
+        if (age != null) {
+            contactStr.append("age: ").append(age).append(" ,");
+        }
+        if (birthDayString != null) {
+            contactStr.append("birthDayString: ").append(birthDayString).append(" ,");
+        }
+        if (company != null) {
+            contactStr.append("company: ").append(company).append(" ,");
+        }
+//        if ( != null) {
+//            contactStr.append(": ").append().append(" ,");
+//        }
+
+        for (String s : phonesHome) {
+            contactStr.append("Phone: ").append(s).append(", ");
+        }
+        for (String[] strings : rowComments) {
+            contactStr.append("Comment : ").append(Arrays.toString(strings)).append(", ");
+        }
+
+//            companyPersonPosition = fieldValue;
+//        } else if (fieldName.equals("companyPersonEmail")) {
+//            companyPersonEmail = fieldValue;
+//        } else if (fieldName.equals("companyOccupation")) {
+//            companyOccupation = fieldValue;
+//        } else if (fieldName.equals("companyPersonEmail")) {
+//            companyPersonEmail = fieldValue;
+//        } else if (fieldName.equals("companyPhone")) {
+//            companyPhone = fieldValue;
+//        } else if (fieldName.equals("companyCity")) {
+//            companyCity = fieldValue;
+//        } else if (fieldName.equals("companyDepartment")) {
+//            companyDepartment = fieldValue;
+//        } else if (fieldName.equals("companyLocation")) {
+//            companyLocation = fieldValue;
+//        } else if (fieldName.equals("homepage")) {
+//            homepage = fieldValue;
+//        } else if (fieldName.equals("about")) {
+//            about = fieldValue;
+//        } else if (fieldName.startsWith("comment")) {
+//            addComment(fieldName.substring(7), fieldValue);
+//        } else {
+//            log.error("Unknown field name : " + fieldName, new Throwable());
+//            addComment(fieldName, fieldValue);
+//        }
+
+//        private Date birthDay;
+//        private Boolean gender;
+
+        return contactStr.toString();
     }
 }
