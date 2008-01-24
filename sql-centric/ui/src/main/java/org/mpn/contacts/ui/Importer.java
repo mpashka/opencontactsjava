@@ -16,9 +16,9 @@ import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.db.Field;
 import org.mpn.contacts.framework.db.Row;
 
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.nio.charset.Charset;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.Importer here
@@ -80,7 +80,7 @@ public class Importer {
     private String lastName;
     private String nick;
 
-    private String group;
+    private Set<String> group;
 
     private Set<String> phonesHome;
     private String city;
@@ -109,6 +109,7 @@ public class Importer {
 
     private String importerName;
     private boolean importCompany;
+    private boolean warningUnknownFields = true;
 
     public Importer(String importerName, boolean importCompany) {
         this.importerName = importerName;
@@ -121,6 +122,14 @@ public class Importer {
 
     public void setImportCompany(boolean importCompany) {
         this.importCompany = importCompany;
+    }
+
+    public boolean isWarningUnknownFields() {
+        return warningUnknownFields;
+    }
+
+    public void setWarningUnknownFields(boolean warningUnknownFields) {
+        this.warningUnknownFields = warningUnknownFields;
     }
 
     protected boolean isEmail(String id) {
@@ -158,7 +167,7 @@ public class Importer {
         address = null;
         country = null;
 
-        group = null;
+        group = new HashSet<String>();
 
         phonesHome = new HashSet<String>();
         about = null;
@@ -196,7 +205,7 @@ public class Importer {
             personId = searchPersonByName();
         } else {
             personId = searchPersonByMessaging();
-            if (personId == null) {
+            if (personId == null && firstName != null && lastName != null) {
                 personId = searchPersonByName();
             }
         }
@@ -301,7 +310,7 @@ public class Importer {
             addComment("Phone home", phoneHome);
         }
 
-        processGroup(personId);
+        processGroups(personId);
 
         for (String[] comments : rowComments) {
             String comment = comments[0];
@@ -321,7 +330,6 @@ public class Importer {
     }
 
     private Long searchPersonByName() {
-        Long personId = null;
         for (personTableRow.startIteration(); personTableRow.hasNext(); personTableRow.next()) {
             if (firstName.equals(personTableRow.getData(Data.personFirstName))
                     &&
@@ -402,15 +410,21 @@ public class Importer {
         return presentedPhonesHome;
     }
 
-    private void processGroup(Long personId) {
+    private void processGroups(Long personId) {
         boolean createGroup = false;
         if (importCompany) {
-            group = "Job/" + company + "/" + companyDepartment;
+            group.add("Job/" + company + "/" + companyDepartment);
             createGroup = true;
-        } else if (group == null) return;
+        } else if (group.isEmpty()) return;
+        for (String groupName : group) {
+            processOneGroup(personId, groupName, createGroup);
+        }
+    }
+
+    private void processOneGroup(Long personId, String group, boolean createGroup) {
         String groupId = group.replaceAll(" ", "").toLowerCase().trim();
         for (personGroupTableRow.startIteration(); personGroupTableRow.hasNext(); personGroupTableRow.next()) {
-            String presentedGroupIdStr = personGroupTableRow.getData(Data.personGroupID).toLowerCase().trim();
+            String presentedGroupIdStr = personGroupTableRow.getData(Data.personGroupIdentity).toLowerCase().trim();
             if (groupId.equals(presentedGroupIdStr)) {
                 Long presentedGroupId = personGroupTableRow.getId();
                 for (personGroupsTableRow.startIteration(); personGroupsTableRow.hasNext(); personGroupsTableRow.next()) {
@@ -428,8 +442,9 @@ public class Importer {
 
         if (createGroup) {
             beginRowUpdate(personGroupTableRow);
-            setRowField(Data.personGroupID, groupId);
+            setRowField(Data.personGroupIdentity, groupId);
             setRowField(Data.personGroupName, group);
+            setRowField(Data.personGroupPriority, 10);
             Long presentedGroupId = endRowUpdate(true, personGroupTableRow);
 
             beginRowUpdate(personGroupsTableRow);
@@ -589,7 +604,7 @@ public class Importer {
     }
 
     public void setGroup(String group) {
-        this.group = group;
+        this.group.add(group);
     }
 
     public void setAddress(String address) {
@@ -709,15 +724,15 @@ public class Importer {
     }
 
     public void setField(String fieldName, String fieldValue) {
-        if (fieldName.equals("messagingSkype")) {
+        if (fieldName.equals("messagingSkype") && fieldValue != null) {
             messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_SKYPE});
-        } else if (fieldName.equals("messagingIcq")) {
+        } else if (fieldName.equals("messagingIcq") && fieldValue != null) {
             messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_ICQ});
-        } else if (fieldName.equals("messagingJabber")) {
+        } else if (fieldName.equals("messagingJabber") && fieldValue != null) {
             messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_JABBER});
-        } else if (fieldName.equals("messagingMobile")) {
+        } else if (fieldName.equals("messagingMobile") && fieldValue != null) {
             messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_MOBILE});
-        } else if (fieldName.equals("messagingEmail")) {
+        } else if (fieldName.equals("messagingEmail") && fieldValue != null) {
             messaging.add(new String[] {fieldValue.toLowerCase(), Data.IM_TYPE_EMAIL});
         } else if (fieldName.equals("fullName")) {
             fullName = fieldValue;
@@ -730,7 +745,10 @@ public class Importer {
         } else if (fieldName.equals("nick")) {
             nick = fieldValue;
         } else if (fieldName.equals("group")) {
-            group = fieldValue;
+            group.add(fieldValue);
+        } else if (fieldName.startsWith("groups")) {
+            String[] groupNames = fieldValue.split("[,;]");
+            group.addAll(Arrays.asList(groupNames));
         } else if (fieldName.equals("phonesHome")) {
             phonesHome.add(fieldValue);
         } else if (fieldName.equals("city")) {
@@ -774,7 +792,9 @@ public class Importer {
         } else if (fieldName.startsWith("comment")) {
             addComment(fieldName.substring(7), fieldValue);
         } else {
-            log.error("Unknown field name : " + fieldName, new Throwable());
+            if (warningUnknownFields) {
+                log.error("Unknown field name : " + fieldName, new Throwable());
+            }
             addComment(fieldName, fieldValue);
         }
 
@@ -786,8 +806,10 @@ public class Importer {
 
     public String toString() {
         StringBuilder contactStr = new StringBuilder();
-        for (String[] strings : messaging) {
-            contactStr.append("Messaging [").append(strings[1]).append("] ").append(strings[0]).append("\n");
+        if (messaging != null) {
+            for (String[] strings : messaging) {
+                contactStr.append("Messaging [").append(strings[1]).append("] ").append(strings[0]).append("\n");
+            }
         }
         contactStr.append("Name : ");
         if (fullName != null) {
@@ -832,11 +854,16 @@ public class Importer {
 //            contactStr.append(": ").append().append(" ,");
 //        }
 
-        for (String s : phonesHome) {
-            contactStr.append("Phone: ").append(s).append(", ");
+        if (phonesHome != null) {
+            for (String s : phonesHome) {
+                contactStr.append("Phone: ").append(s).append(", ");
+            }
         }
-        for (String[] strings : rowComments) {
-            contactStr.append("Comment : ").append(Arrays.toString(strings)).append(", ");
+
+        if (rowComments != null) {
+            for (String[] strings : rowComments) {
+                contactStr.append("Comment : ").append(Arrays.toString(strings)).append(", ");
+            }
         }
 
 //            companyPersonPosition = fieldValue;

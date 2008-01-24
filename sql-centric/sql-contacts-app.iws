@@ -81,6 +81,21 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
+    <line_breakpoints>
+      <breakpoint url="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ComplexImport.java" line="52" class="org.mpn.contacts.ui.ComplexImport" package="org.mpn.contacts.ui">
+        <option name="ENABLED" value="true" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -192,39 +207,7 @@
     <option name="myCurrentFavoritesList" value="sql-contacts-app" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="Importer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/Importer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="199" column="48" selection-start="6238" selection-end="6238" vertical-scroll-proportion="0.56959313">
-              <folding>
-                <element signature="docComment;method#processHomePhones#0;class#Importer#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ComplexImport.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ComplexImport.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="127" column="21" selection-start="6608" selection-end="6608" vertical-scroll-proportion="0.5342612">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Data.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/Data.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="66" column="18" selection-start="3212" selection-end="3212" vertical-scroll-proportion="0.33297643">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -431,6 +414,112 @@
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
       </PATH_ELEMENT>
     </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="sql-contacts-app.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="sql-contacts-app.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="sql-contacts-app.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="sql-contacts-app.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src\main" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src\main\java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src\main\java\org\mpn\contacts\framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="sql-contacts-app.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src\main" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src\main\java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src\main\java\org\mpn\contacts\framework" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:C:\Projects\jContacts\sql-centric\framework\src\main\java\org\mpn\contacts\framework\db" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
   </component>
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
@@ -461,6 +550,8 @@
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="cvs_file_history_treeOrder2" value="2" />
     <property name="cvs_file_history_treeOrder1" value="1" />
+    <property name="RunManagerConfig.compileBeforeRunning" value="true" />
+    <property name="RunManagerConfig.showSettingsBeforeRunnig" value="true" />
     <property name="cvs_file_history_treeOrder3" value="3" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="cvs_file_history_flatOrder2" value="2" />
@@ -490,11 +581,11 @@
     </key>
   </component>
   <component name="Regex">
-    <option name="pos1" value="543" />
-    <option name="pos2" value="543" />
-    <option name="pos3" value="147" />
-    <option name="pos4" value="1086" />
-    <option name="pos5" value="147" />
+    <option name="pos1" value="177" />
+    <option name="pos2" value="177" />
+    <option name="pos3" value="181" />
+    <option name="pos4" value="354" />
+    <option name="pos5" value="181" />
     <option name="autoUpdate" value="true" />
     <option name="referenceOn" value="false" />
     <option name="referencePos" value="0" />
@@ -503,16 +594,27 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="Application" />
-    <tempConfiguration selected="true" default="false" name="ComplexImport" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="org.mpn.contacts.ui.ComplexImport" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <tempConfiguration selected="false" default="false" name="ImportCsv" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="org.mpn.contacts.ui.ImportCsv" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
       <module name="ui" />
       <RunnerSettings RunnerId="Run" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="2471" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="JProfiler">
+        <option name="WINDOW" value="false" />
+        <option name="JVMPI" value="false" />
+        <option name="INTERPRETED" value="false" />
+      </RunnerSettings>
       <ConfigurationWrapper RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
     </tempConfiguration>
     <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
       <module name="" />
@@ -557,6 +659,28 @@
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
+    </configuration>
+    <configuration selected="true" default="false" name="ComplexImport" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="org.mpn.contacts.ui.ComplexImport" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <module name="ui" />
+      <RunnerSettings RunnerId="Run" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="2079" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="JProfiler">
+        <option name="WINDOW" value="false" />
+        <option name="JVMPI" value="false" />
+        <option name="INTERPRETED" value="false" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
     </configuration>
   </component>
   <component name="SelectInManager" />
@@ -627,8 +751,8 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.25305623" order="0" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="2" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.4" order="9" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="5" />
-      <window_info id="Regex" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32916668" order="3" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.40833333" order="5" />
+      <window_info id="Regex" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32885087" order="3" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="8" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Aspects" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
@@ -720,36 +844,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/Java/jdk/jdk1.6.0/jre/lib/rt.jar!/com/sun/xml/internal/messaging/saaj/packaging/mime/internet/MimeUtility.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="1072" selection-end="1072" vertical-scroll-proportion="0.33297643">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportVCard.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="0" selection-start="1979" selection-end="2053" vertical-scroll-proportion="0.63751316">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportLdap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="0" selection-start="1170" selection-end="1446" vertical-scroll-proportion="0.46575344">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportHtml.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="266" column="0" selection-start="9696" selection-end="9696" vertical-scroll-proportion="0.38672286">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Java/jdk/jdk1.6.0/src.zip!/java/lang/AbstractStringBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="511" column="33" selection-start="20461" selection-end="20461" vertical-scroll-proportion="0.3329821">
@@ -760,38 +854,6 @@
     <entry file="jar://C:/Java/jdk/jdk1.6.0/src.zip!/java/lang/StringBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="188" column="18" selection-start="6787" selection-end="6787" vertical-scroll-proportion="0.35089567">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportCsv.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="67" selection-start="1023" selection-end="1023" vertical-scroll-proportion="0.31506848">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportRegexpBase.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="49" selection-start="1636" selection-end="1636" vertical-scroll-proportion="0.49420443">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportGmail.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="96" column="36" selection-start="2788" selection-end="2788" vertical-scroll-proportion="0.8598525">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportMiranda.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="19" selection-start="1551" selection-end="1551" vertical-scroll-proportion="0.30942184">
           <folding />
         </state>
       </provider>
@@ -812,26 +874,88 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/Data.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="18" selection-start="3212" selection-end="3212" vertical-scroll-proportion="0.33297643">
+        <state line="127" column="23" selection-start="7633" selection-end="7633" vertical-scroll-proportion="1.1810089">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/framework/src/main/java/org/mpn/contacts/framework/db/DbAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="152" column="18" selection-start="5980" selection-end="5980" vertical-scroll-proportion="0.9495549">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Java/jdk/jdk1.6.0/src.zip!/java/io/FileInputStream.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="198" column="0" selection-start="7804" selection-end="7804" vertical-scroll-proportion="0.1262136">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportRegexpBase.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="66" column="61" selection-start="2465" selection-end="2465" vertical-scroll-proportion="0.33333334">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/RussianNameConverter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="150" column="44" selection-start="5155" selection-end="5155" vertical-scroll-proportion="0.201726">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ComplexImport.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="130" column="0" selection-start="6782" selection-end="6782" vertical-scroll-proportion="0.24518201">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportCsv.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="91" column="0" selection-start="3260" selection-end="3260" vertical-scroll-proportion="0.18756586">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/Importer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="199" column="48" selection-start="6238" selection-end="6238" vertical-scroll-proportion="0.56959313">
+        <state line="570" column="0" selection-start="21407" selection-end="21407" vertical-scroll-proportion="0.18522485">
           <folding>
             <element signature="docComment;method#processHomePhones#0;class#Importer#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ComplexImport.java">
+    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportMiranda.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="127" column="21" selection-start="6608" selection-end="6608" vertical-scroll-proportion="0.5342612">
+        <state line="191" column="0" selection-start="7318" selection-end="7318" vertical-scroll-proportion="0.18522485">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportVCard.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="108" column="0" selection-start="3674" selection-end="3674" vertical-scroll-proportion="0.18545838">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/src/main/java/org/mpn/contacts/ui/ImportGmail.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="305" column="54" selection-start="12345" selection-end="12345" vertical-scroll-proportion="0.27713382">
+          <folding />
         </state>
       </provider>
     </entry>

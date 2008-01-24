@@ -64,9 +64,10 @@ public class ImportRegexpBase extends Importer {
     private void importContact(Pattern regexp, String inLine, String[] fieldNames, Map<String, String> predefinedFields) {
         Matcher matcher = regexp.matcher(inLine);
         if (matcher.matches()) {
-            if (matcher.groupCount() != fieldNames.length) {
+            if (matcher.groupCount() != fieldNames.length - 1) {
                 log.warn("Group count doesn't match. Line : " + inLine + ", fields : " + fieldNames.length + ", group count : " + matcher.groupCount());
             }
+            startImportContact();
             if (predefinedFields != null) {
                 for (Map.Entry<String, String> entry : predefinedFields.entrySet()) {
                     setField(entry.getKey(), entry.getValue());
