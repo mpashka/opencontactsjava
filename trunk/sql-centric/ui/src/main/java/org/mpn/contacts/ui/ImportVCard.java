@@ -94,6 +94,7 @@ public class ImportVCard extends Importer {
                 if (!value.equals("VCARD")) {
                     log.error("Unknown begin : " + value);
                 }
+                startImportContact();
             } else if (namesStr.equals("END")) {
                 if (!value.equals("VCARD")) {
                     log.error("Unknown end : " + value);

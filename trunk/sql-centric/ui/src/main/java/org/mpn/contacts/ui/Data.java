@@ -121,10 +121,11 @@ public interface Data {
     Field<String> personRelationNote = new Field<String>(String.class, "relationTypeNote");
     DbTable personRelationTable = new DbTable("personRelation", relationTypeTable.id, personRelationNote, personTable.id);
 
-    Field<String> personGroupID = new Field<String>(String.class, "personGroupID");
+    Field<String> personGroupIdentity = new Field<String>(String.class, "personGroupIdentity");
     Field<String> personGroupName = new Field<String>(String.class, "personGroupName");
+    Field<Integer> personGroupPriority = new Field<Integer>(Integer.class, "personGroupPriority");
     Field<String> personGroupNote = new Field<String>(String.class, "personGroupNote");
-    DbTable personGroupTable = new DbTable("personGroup", personGroupID, personGroupName, personGroupNote);
+    DbTable personGroupTable = new DbTable("personGroup", personGroupIdentity, personGroupName, personGroupPriority, personGroupNote);
 
     DbTable personGroupsTable = new DbTable("personGroups", personGroupTable.id, personTable.id);
 

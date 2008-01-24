@@ -140,6 +140,12 @@ public class RussianNameConverter {
     private String firstName, lastName, middleName;
 
     public void convertName(String name, String _firstName, String _middleName, String _lastName) {
+        if (name == null) {
+            firstName = _firstName;
+            middleName = _middleName;
+            lastName = _lastName;
+            return;
+        }
         firstName = lastName = middleName = null;
         String[] names = name.split("\\s+");
         if (names.length == 2) {

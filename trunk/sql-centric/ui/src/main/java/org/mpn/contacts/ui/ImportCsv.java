@@ -20,6 +20,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.ImportCsv here
@@ -44,6 +46,12 @@ public class ImportCsv extends Importer {
 
         while (!eof) {
             String[] contactInfoStrings = parseLine(fileReader);
+            if (contactInfoStrings.length > headers.length) {
+                log.error("Headers less than data.\n" +
+                        "Headers : " + Arrays.toString(headers) + "\n" +
+                        "Data : " + Arrays.toString(contactInfoStrings));
+            }
+            startImportContact();
             for (int i = 0; i < contactInfoStrings.length; i++) {
                 String contactInfoString = contactInfoStrings[i];
                 String headerName = headers[i];
@@ -63,7 +71,7 @@ public class ImportCsv extends Importer {
             String headerLine = headerLines[i];
             if (headerLine != null && headerLine.length() >=2 && headerLine.charAt(0) == '"'
                     && headerLine.charAt(headerLine.length() - 1) == '"') {
-                headerLine = headerLine.substring(1, headerLine.length() - 2);
+                headerLine = headerLine.substring(1, headerLine.length() - 1);
                 headerLines[i] = headerLine;
             }
         }
@@ -76,7 +84,7 @@ public class ImportCsv extends Importer {
         do {
             int nextCharInt;
             nextCharInt = fileReader.read();
-            if (nextCharInt == '\r') {
+            if (nextCharInt == '\r' || nextCharInt == '\n') {
                 nextCharInt = fileReader.read();
             }
 
@@ -88,14 +96,21 @@ public class ImportCsv extends Importer {
                         nextCharInt = fileReader.read();
                         if (nextCharInt == ',') {
                             break;
-                        } else if (nextCharInt == '\n') {
+                        } else if (nextCharInt == '\n' || nextCharInt == '\r') {
                             eol = true;
                             break;
                         } else if (nextCharInt == -1) {
                             eol = true;
                             eof = true;
                             break;
+                        } else {
+                            log.warn("Unknown char after closing \" : " + nextCharInt);
                         }
+                    } else if (nextCharInt == -1) {
+                        log.error("Error reading CSV field - EOF occured inside \" : " + token);
+                        eol = true;
+                        eof = true;
+                        break;
                     }
                     token.append((char) nextCharInt);
                 }
@@ -106,7 +121,7 @@ public class ImportCsv extends Importer {
                     }
                     if (nextCharInt == ',') {
                         break;
-                    } else if (nextCharInt == '\n') {
+                    } else if (nextCharInt == '\n' || nextCharInt == '\r') {
                         eol = true;
                         break;
                     } else if (nextCharInt == -1) {
@@ -123,6 +138,11 @@ public class ImportCsv extends Importer {
     }
 
 
+    public static void main(String[] args) throws Exception {
+        ImportCsv importCsv = new ImportCsv("TheBat", false);
+        Map<String, String> batFieldsMapping = new HashMap<String, String>();
+        importCsv.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\csv\\2002.06\\TheBatContacts.CSV"), batFieldsMapping);
 
+    }
 
 }
