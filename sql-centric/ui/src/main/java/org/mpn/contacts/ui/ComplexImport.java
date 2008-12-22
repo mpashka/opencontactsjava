@@ -13,6 +13,15 @@
 package org.mpn.contacts.ui;
 
 import org.apache.log4j.Logger;
+import org.mpn.contacts.importer.ImportCsv;
+import org.mpn.contacts.importer.ImportGmail;
+import org.mpn.contacts.importer.ImportHtml;
+import org.mpn.contacts.importer.ImportLdap;
+import org.mpn.contacts.importer.ImportMirandaDb;
+import org.mpn.contacts.importer.ImportMirandaDbEditorIni;
+import org.mpn.contacts.importer.ImportPalmDesktop;
+import org.mpn.contacts.importer.ImportRegexpBase;
+import org.mpn.contacts.importer.ImportVCard;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,23 +43,24 @@ public class ComplexImport {
         ImportLdap importLdap = new ImportLdap();
         ImportHtml importHtml = new ImportHtml();
 
+        File rootImportDir = new File("../.#data/import");
 
-        importLdap.doImport("jnetx", new File("C:\\Projects\\jContacts\\.data\\import\\ldap\\jnetx-addrs.2005-10-27.ldif"));
-        importLdap.doImport("jnetx", new File("C:\\Projects\\jContacts\\.data\\import\\ldap\\jnetx.adress-book.2007-02-01.ldif"));
-        importLdap.doImport("jnetx", new File("C:\\Projects\\jContacts\\.data\\import\\ldap\\jnetx.2007-03-26.ldif"));
-        importLdap.doImport("jnetx", new File("C:\\Projects\\jContacts\\.data\\import\\ldap\\jnetx-users.2008-01-23.ldif"));
+        importLdap.doImport("jnetx", new File(rootImportDir, "ldap/jnetx-addrs.2005-10-27.ldif"));
+        importLdap.doImport("jnetx", new File(rootImportDir, "ldap/jnetx.adress-book.2007-02-01.ldif"));
+        importLdap.doImport("jnetx", new File(rootImportDir, "ldap/jnetx.2007-03-26.ldif"));
+        importLdap.doImport("jnetx", new File(rootImportDir, "ldap/jnetx-users.2008-01-23.ldif"));
 
-        importHtml.doImportFolder("jnetx", new File("C:\\Projects\\jContacts\\.data\\import\\html\\2007-12-21"));
+        importHtml.doImportFolder("jnetx", new File(rootImportDir, "html/2007-12-21"));
 
-        importLdap.doImport("vc", new File("C:\\Projects\\jContacts\\.data\\import\\ldap\\vc.2005-07-07\\japan.ldif"));
-        importLdap.doImport("vc", new File("C:\\Projects\\jContacts\\.data\\import\\ldap\\vc.2005-07-07\\moscow.ldif"));
-        importLdap.doImport("vc", new File("C:\\Projects\\jContacts\\.data\\import\\ldap\\vc.2005-07-07\\russia-all.ldif"));
+        importLdap.doImport("vc", new File(rootImportDir, "ldap/vc.2005-07-07/japan.ldif"));
+        importLdap.doImport("vc", new File(rootImportDir, "ldap/vc.2005-07-07/moscow.ldif"));
+        importLdap.doImport("vc", new File(rootImportDir, "ldap/vc.2005-07-07/russia-all.ldif"));
 
 
         Map<String, String> definedCompanyName = new HashMap<String, String>();
         definedCompanyName.put("company", "artezio");
         ImportRegexpBase importRegexpBase = new ImportRegexpBase("Regex", true);
-        importRegexpBase.doImport(definedCompanyName, new File("C:\\Projects\\jContacts\\.data\\import\\csv\\artezio-2002-07-23.txt"),
+        importRegexpBase.doImport(definedCompanyName, new File(rootImportDir, "csv/artezio-2002-07-23.txt"),
                 Pattern.compile("^([^<]+) *<(([\\p{Lower}]+)@artezio.ru)>[, -]*(.*)$"),
                 new String[] {
                         null,
@@ -63,32 +73,32 @@ public class ComplexImport {
         mobileContactsMapping.put("Телефон", "messagingMobile");
         importCsv.setWarningUnknownFields(false);
         // todo [!] add valuecommerce company here
-        importCsv.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\csv\\MobileContacts-ValueCommerce-2005-02-07.txt"), mobileContactsMapping);
+        importCsv.doImport(new File(rootImportDir, "csv/MobileContacts-ValueCommerce-2005-02-07.txt"), mobileContactsMapping);
 
 
 
         ImportVCard importVCard = new ImportVCard();
-        importVCard.doImportVCard(new File("C:\\Projects\\jContacts\\.data\\import\\csv\\Mobile Phone Manager.2005-03-29\\vcard.txt"));
+        importVCard.doImportVCard(new File(rootImportDir, "csv/Mobile Phone Manager.2005-03-29/vcard.txt"));
 
         definedCompanyName.put("company", "artezio");
-        importRegexpBase.doImport(definedCompanyName, new File("C:\\Projects\\jContacts\\.data\\import\\csv\\artezio-list.2004-01-15.txt"),
+        importRegexpBase.doImport(definedCompanyName, new File(rootImportDir, "csv/artezio-list.2004-01-15.txt"),
                 Pattern.compile("^(.+)$"), new String[] {"fullName"});
 
         definedCompanyName.put("company", "vc");
-        importRegexpBase.doImport(definedCompanyName, new File("C:\\Projects\\jContacts\\.data\\import\\csv\\vc-list.2004-01-15.txt"),
+        importRegexpBase.doImport(definedCompanyName, new File(rootImportDir, "csv/vc-list.2004-01-15.txt"),
                 Pattern.compile("^(.+)$"), new String[] {"fullName"});
 
 
         importRegexpBase.setImportCompany(false);
-        importRegexpBase.doStreamImport(Pattern.compile(",[\\s]*"), null, new File("C:\\Projects\\jContacts\\.data\\import\\csv\\e-mail.contacts.2005-09-21.txt"),
+        importRegexpBase.doStreamImport(Pattern.compile(",[\\s]*"), null, new File(rootImportDir, "csv/e-mail.contacts.2005-09-21.txt"),
                 Pattern.compile("\\\"?([^<]*)[\" ]*<([^>]+)>"), new String[]{"fullName", "messagingEmail"});
 
 
 
         ImportGmail importGmail = new ImportGmail();
-        importGmail.doImportFolder(new File("C:\\Projects\\jContacts\\.data\\import\\gmail"));
+        importGmail.doImportFolder(new File(rootImportDir, "gmail"));
 
-        importMirandaFolder(new File("C:\\Projects\\jContacts\\.data\\import\\Miranda"));
+        importMirandaFolder(new File(rootImportDir, "Miranda"));
 
 
         Map<String, String> batFieldsMapping = new HashMap<String, String>();
@@ -100,21 +110,21 @@ public class ComplexImport {
         batFieldsMapping.put("Categories", "groups");
         batFieldsMapping.put("Mobile", "messagingMobile");
         importCsv.setWarningUnknownFields(false);
-        importCsv.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\csv\\2002.06\\TheBatContacts.CSV"), batFieldsMapping);
+        importCsv.doImport(new File(rootImportDir, "csv/2002.06/TheBatContacts.CSV"), batFieldsMapping);
 
-        importRegexpBase.doImport(null, new File("C:\\Projects\\jContacts\\.data\\import\\csv\\e-mail.contacts2.2006-04-11.csv"),
+        importRegexpBase.doImport(null, new File(rootImportDir, "csv/e-mail.contacts2.2006-04-11.csv"),
                 Pattern.compile("^([^;]+) ;(.+)$"), new String[]{"fullName", "messagingEmail"});
 
 // This is palm desktop contacts
-//        importCsv.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\excel\\contacts.2006-04-14.csv"), new HashMap<String, String>());
-//        importCsv.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\excel\\contacts.memo.2006-04-14.csv"), new HashMap<String, String>());
+//        importCsv.doImport(new File(rootImportDir, "excel\\contacts.2006-04-14.csv"), new HashMap<String, String>());
+//        importCsv.doImport(new File(rootImportDir, "excel\\contacts.memo.2006-04-14.csv"), new HashMap<String, String>());
 
         ImportPalmDesktop importPalmDesktop = new ImportPalmDesktop();
-        importPalmDesktop.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\PalmDesktop\\СтарыеКонтактыPalmDesktop.2006-04-11.csv"));
-        importPalmDesktop.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\PalmDesktop\\2006-04-13\\contacts-comma.csv"));
-        importCsv.doImport(new File("C:\\Projects\\jContacts\\.data\\import\\PalmDesktop\\2006-04-13\\excel\\contacts.memo.2006-04-14.csv"), new HashMap<String, String>());
+        importPalmDesktop.doImport(new File(rootImportDir, "PalmDesktop/СтарыеКонтактыPalmDesktop.2006-04-11.csv"));
+        importPalmDesktop.doImport(new File(rootImportDir, "PalmDesktop/2006-04-13/contacts-comma.csv"));
+        importCsv.doImport(new File(rootImportDir, "PalmDesktop/2006-04-13/excel/contacts.memo.2006-04-14.csv"), new HashMap<String, String>());
 
-        importVCard.doImportVCards(new File("C:\\Projects\\jContacts\\.data\\import\\vcard"));
+        importVCard.doImportVCards(new File(rootImportDir, "vcard"));
     }
 
     private ImportMirandaDb importMirandaDb = new ImportMirandaDb();
@@ -126,9 +136,11 @@ public class ComplexImport {
             }
             String fileName = file.getName().toLowerCase();
             if (fileName.endsWith(".ini")) {
+                log.info("Import Miranda from ini : " + file);
                 importMirandaDbEditorIni.doImport(file);
             } else if (fileName.endsWith(".dat")) {
-                importMirandaDb.readDatabase(file);
+                log.info("Import Miranda from dat : " + file);
+                importMirandaDb.doImport(file);
             } else {
                 log.warn("Unknown miranda file : " + file);
             }
@@ -137,5 +149,11 @@ public class ComplexImport {
 
     public static void main(String[] args) throws IOException {
         new ComplexImport().doImport();
+        
+/*
+        // todo [!] implement
+        SHUTDOWN
+        db.ExecSQL("SHUTDOWN");
+*/
     }
 }
