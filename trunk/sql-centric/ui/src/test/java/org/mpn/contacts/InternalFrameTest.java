@@ -12,7 +12,6 @@
  */
 package org.mpn.contacts;
 
-import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -24,7 +23,7 @@ import java.awt.*;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class InternalFrameTest extends TestCase {
+public class InternalFrameTest {
 
     static final Logger log = Logger.getLogger(InternalFrameTest.class);
 

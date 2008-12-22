@@ -16,7 +16,6 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import junit.framework.TestCase;
 
 import javax.swing.*;
 
@@ -26,7 +25,7 @@ import javax.swing.*;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class PanelBuilderTest extends TestCase {
+public class PanelBuilderTest {
 
     public void testBuildPanel() throws InterruptedException {
         JFrame jframe = new JFrame("Test");
