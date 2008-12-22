@@ -9,7 +9,17 @@ import org.mpn.contacts.framework.db.filter.FixedValueFilter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:pmoukhataev@dev.java.net">Pavel Moukhataev</a>
@@ -145,7 +155,7 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
         try {
             log.debug("Insert data into table " + name + " : " + Arrays.toString(fieldsData));
             for (int i = 1; i < fieldsData.length; i++) {
-                insertDataPreparedStatement.setObject(i, fieldsData[i]);
+                setSqlStatementObject(insertDataPreparedStatement, fieldsMetaData[i], fieldsData[i], i);
             }
             insertDataPreparedStatement.executeUpdate();
             ResultSet insertIdData = insertIdDataPreparedStatement.executeQuery();
@@ -172,7 +182,8 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
         try {
             log.debug("Update data in table " + name + " : " + Arrays.toString(fieldsData));
             for (int i = 1; i < fieldsData.length; i++) {
-                updateDataPreparedStatement.setObject(i, fieldsData[i]);
+                setSqlStatementObject(updateDataPreparedStatement, fieldsMetaData[i], fieldsData[i], i);
+//                updateDataPreparedStatement.setObject(i, fieldsData[i]);
             }
             updateDataPreparedStatement.setLong(fieldsData.length, (Long) fieldsData[0]);
             int rowCount = updateDataPreparedStatement.executeUpdate();
@@ -194,6 +205,18 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
         } catch (SQLException e) {
             log.error("Error description", e);
             throw new ContactsException("Error description", e);
+        }
+    }
+
+    private void setSqlStatementObject(PreparedStatement sqlStatement, Field fieldMetadata, Object fieldData, int index) throws SQLException {
+        if (fieldData == null) return;
+        if (fieldMetadata.getTypeClass() == Date.class) {
+            log.debug("Iserting date : " + fieldData);
+            Date date = (Date) fieldData;
+            java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+            sqlStatement.setDate(index, sqlDate);
+        } else {
+            sqlStatement.setObject(index, fieldData);
         }
     }
 
