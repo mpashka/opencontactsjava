@@ -42,10 +42,10 @@ public class DbAccess {
 
     private DbAccess() {
         driverClassName = "org.hsqldb.jdbcDriver";
-//        "jdbc:hsqldb:file:/opt/db/testdb"
+// File database   "jdbc:hsqldb:file:/opt/db/testdb"
 // Server database "jdbc:hsqldb:hsql://localhost/xdb"
 // Memory database "jdbc:hsqldb:mem:aname"
-        driverUrl = "jdbc:hsqldb:file:testdb";
+        driverUrl = "jdbc:hsqldb:file:target/testdb";
         driverLogin = "sa";
         driverPassword = "";
 
