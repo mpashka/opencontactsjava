@@ -69,6 +69,7 @@ public class ImportVCard extends Importer {
 
         String inLine;
         while ((inLine = in.readLine()) != null) {
+            if (inLine.length() == 0) continue;
             int commaPos = inLine.indexOf(':');
             if (commaPos == -1) {
                 log.warn("Comma not found");

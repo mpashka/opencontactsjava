@@ -75,7 +75,8 @@ public class ImportTest {
 
     @Test
     public void importVCards() throws IOException {
-        importVCard.doImportVCards(new File(rootImportDir, "vcard"));
+        importVCard.doImportVCards(new File(rootImportDir, "vcard/vcard-MobileContacts-ValueCommerce-2005-02-07"));
+        importVCard.doImportVCard(new File(rootImportDir, "vcard/voipcheap-contacts.2007-12-04.vcf"));
     }
 
     @Test
@@ -86,7 +87,7 @@ public class ImportTest {
 
         importPalmDesktop.doImport(new File(rootImportDir, "PalmDesktop/СтарыеКонтактыPalmDesktop.2006-04-11.csv"));
         importPalmDesktop.doImport(new File(rootImportDir, "PalmDesktop/2006-04-13/contacts-comma.csv"));
-        importCsv.doImport(new File(rootImportDir, "PalmDesktop/2006-04-13/excel/contacts.memo.2006-04-14.csv"), new HashMap<String, String>());
+//        importCsv.doImport(new File(rootImportDir, "PalmDesktop/2006-04-13/excel/contacts.memo.2006-04-14.csv"), new HashMap<String, String>());
     }
 
 

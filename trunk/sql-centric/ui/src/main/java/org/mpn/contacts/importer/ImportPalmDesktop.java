@@ -36,11 +36,18 @@ public class ImportPalmDesktop extends ImportCsv {
     }
 
     public void doImport(File file) throws IOException {
+        log.info("Import Palm contact : " + file);
+
         eof = false;
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), DEFAULT_CHARSET));
 
         while (!eof) {
             String[] contactInfoStrings = parseLine(fileReader);
+            if (contactInfoStrings.length == 1 && contactInfoStrings[0] == null) {
+//                log.debug("Empty line");
+                // EOF
+                break;
+            }
 
             try {
                 importPalmContact(contactInfoStrings);
