@@ -62,7 +62,6 @@ public class ImportTest {
 
         importMirandaFolder();
 
-
         importCsvTheBat();
 
         importRegexpBase.doImport(null, new File(rootImportDir, "csv/e-mail.contacts2.2006-04-11.csv"),
@@ -170,8 +169,13 @@ public class ImportTest {
     }
 
     @Test
-    public void testImportMirandaFile() throws IOException {
+    public void testImportMirandaIniFile() throws IOException {
         importMirandaDbEditorIni.doImport(new File(rootImportDir, "Miranda/2006-04-11/contacs.miranda.ini"));
+    }
+
+    @Test
+    public void testImportMirandaDb() throws IOException {
+        importMirandaDb.doImport(new File(rootImportDir, "Miranda/pavelmoukhataev.2008-01-17.dat"));
     }
 
 
