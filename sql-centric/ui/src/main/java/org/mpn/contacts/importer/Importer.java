@@ -13,7 +13,6 @@
 package org.mpn.contacts.importer;
 
 import org.apache.log4j.Logger;
-import org.mpn.contacts.framework.ContactsException;
 import org.mpn.contacts.framework.db.Field;
 import org.mpn.contacts.framework.db.Row;
 import org.mpn.contacts.ui.Data;
@@ -241,12 +240,7 @@ public class Importer {
         setRowField(Data.personBirthday, birthDay);
         setRowField(Data.personGender, gender);
         processHomePhones(personId);
-        try {
         personId = endRowUpdate(personId == null, personTableRow);
-        } catch (ContactsException e) {
-            log.error("Invalid something", e);
-            throw e;
-        }
 
         for (String[] strings : messaging) {
             String messagingId = strings[0];

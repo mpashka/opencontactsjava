@@ -3,9 +3,9 @@ package org.mpn.contacts.ui;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.builder.ButtonStackBuilder;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.CellConstraints;
 import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.db.DataSource;
 import org.mpn.contacts.framework.db.DbAccess;
@@ -20,13 +20,17 @@ import org.mpn.contacts.framework.ui.RowRollbackAction;
 import org.mpn.contacts.framework.ui.SingleRowUIForm;
 import org.mpn.contacts.framework.ui.UiComboBoxAbstract;
 import org.mpn.contacts.framework.ui.UiComboBoxFixed;
+import org.mpn.contacts.framework.ui.dnd.DataSourceTable;
 import org.mpn.contacts.framework.ui.dnd.DndFrame;
 import org.mpn.contacts.framework.ui.dnd.RowPanel;
-import org.mpn.contacts.framework.ui.dnd.DataSourceTable;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:pmoukhataev@dev.java.net">Pavel Moukhataev</a>
@@ -71,6 +75,11 @@ public class MainFrame {
                 createUserDetailsDialog();
             }
         };
+        Action usersFormAction = new AbstractAction("Users") {
+            public void actionPerformed(ActionEvent e) {
+                createUsersTable();
+            }
+        };
         Action townFormAction = new AbstractAction("Towns") {
             public void actionPerformed(ActionEvent e) {
                 createTownDialog();
@@ -104,6 +113,7 @@ public class MainFrame {
         };
         buttonStackBuilder.addButtons(new JButton[]{
                 new JButton(userFormAction),
+                new JButton(usersFormAction),
                 new JButton(townFormAction),
                 new JButton(streetsFormAction),
                 new JButton(addressFormAction),
@@ -124,6 +134,100 @@ public class MainFrame {
             Boolean booleanValue = (Boolean) value;
             String text = booleanValue == null ? "" : (booleanValue ? "male" : "female");
             return rendenrer.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
+        }
+    }
+
+    private static final String[] COLUMNS = {
+            "User name",
+            "ICQ",
+            "E-mail",
+            "Job",
+    };
+
+    private void createUsersTable() {
+        final Map<Long, String> organizationNames = new HashMap<Long, String>();
+        for (Row row : Data.organizationTable) {
+            organizationNames.put(row.getData(Data.organizationTable.id), row.getData(Data.organizationName));
+        }
+        TableModel usersTableModel = new AbstractTableModel() {
+            public int getRowCount() {
+                return Data.personTable.getRowCount();
+            }
+
+            public int getColumnCount() {
+                return COLUMNS.length;
+            }
+
+            public String getColumnName(int columnIndex) {
+                return COLUMNS[columnIndex];
+            }
+
+            public Class<?> getColumnClass(int columnIndex) {
+                return String.class;
+            }
+
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                Object[] data = Data.personTable.getTableData().get(rowIndex);
+                Long personId = (Long) data[0];
+                StringBuilder value = new StringBuilder();
+                if (columnIndex == 0) {
+                    appendString(value, " ", (String) data[1], (String) data[2], (String) data[3]);
+                } else if (columnIndex == 1) {
+                    for (Row row : Data.personMessagingTable) {
+                        if (row.getData(Data.personTable.id).equals(personId) && row.getData(Data.personMessagingType).equals(Data.IM_TYPE_ICQ)) {
+                            appendString(value, ", ", row.getData(Data.personMessagingId));
+                        }
+                    }
+                } else if (columnIndex == 2) {
+                    for (Row row : Data.personMessagingTable) {
+                        if (row.getData(Data.personTable.id).equals(personId) && row.getData(Data.personMessagingType).equals(Data.IM_TYPE_EMAIL)) {
+                            appendString(value, ", ", row.getData(Data.personMessagingId));
+                        }
+                    }
+                } else if (columnIndex == 3) {
+                    for (Row row : Data.personOrganizationTable) {
+                        if (row.getData(Data.personTable.id).equals(personId)) {
+                            appendString(value, ", ", organizationNames.get(row.getData(Data.organizationTable.id)));
+                        }
+                    }
+                }
+                return value.toString();
+            }
+        };
+
+        Map<Long, JCheckBox> groupCheckBoxes = new HashMap<Long, JCheckBox>();
+        JPanel groupsPanel = new JPanel();
+        groupsPanel.setLayout(new BoxLayout(groupsPanel, BoxLayout.PAGE_AXIS));
+        for (Row row : Data.personGroupTable) {
+            Long groupId = row.getData(Data.personGroupTable.id);
+            String groupName = row.getData(Data.personGroupName);
+            if (!groupName.startsWith("Job")) {
+                JCheckBox checkBox = new JCheckBox(groupName);
+                groupCheckBoxes.put(groupId, checkBox);
+                groupsPanel.add(checkBox);
+            }
+        }
+        Row userRow = Data.personTable.getRow();
+        JTable usersTable = new JTable(usersTableModel);
+
+        SingleRowUIForm userUiForm = new SingleRowUIForm(userRow);
+
+        JInternalFrame usersTableFrame = new JInternalFrame("User list", true, true, true, true);
+        Container userDetailsContent = usersTableFrame.getContentPane();
+        userDetailsContent.setLayout(new GridBagLayout());
+        userDetailsContent.add(new JScrollPane(usersTable), new GridBagConstraints(0, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+        userDetailsContent.add(groupsPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+        addNewInternalFrame(usersTableFrame);
+    }
+
+    static void appendString(StringBuilder value, String delimiter, String ... values) {
+        for (String s : values) {
+            if (s != null && s.length() > 0) {
+                if (value.length() > 0) {
+                    value.append(delimiter);
+                }
+                value.append(s);
+            }
         }
     }
 

@@ -19,10 +19,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,7 +78,9 @@ public class ImportGmail extends ImportCsv {
     private String FIELD_NAME_MOBILE = "Мобильный";
     private String FILED_NAME_EMAIL = "Электронная почта";
     private String FIELD_NAME_PHONE = "Телефон";
+    private String FIELD_NAME_CHAT = "Чат";
 
+    private Set<String> knownFieldNames = new HashSet<String>();
 
     public ImportGmail() {
         super("gmail", false);
@@ -183,7 +188,9 @@ public class ImportGmail extends ImportCsv {
         FIELD_NAME_MOBILE = gmailHeaderNames.getProperty("mobile");
         FILED_NAME_EMAIL = gmailHeaderNames.getProperty("email");
         FIELD_NAME_PHONE = gmailHeaderNames.getProperty("phone");
+        FIELD_NAME_CHAT = gmailHeaderNames.getProperty("chat");
 
+        knownFieldNames.addAll(Arrays.asList(FIELD_NAME_MOBILE, FILED_NAME_EMAIL, FIELD_NAME_PHONE, FIELD_NAME_CHAT));
     }
 
     private void readHeaderFiles() throws IOException {
@@ -264,22 +271,57 @@ public class ImportGmail extends ImportCsv {
         importContact();
     }
 
+    private static final Map<String, String> IM_TYPES = new HashMap<String, String>();
+    static {
+        IM_TYPES.put("ICQ", Data.IM_TYPE_ICQ);
+        IM_TYPES.put("JABBER", Data.IM_TYPE_JABBER);
+        IM_TYPES.put("SKYPE", Data.IM_TYPE_JABBER);
+//        IM_TYPES.put("MSN", Data.IM_TYPE_JABBER);
+    }
     private void importGmailField(String name, String email, GmailContactSection gmailContactSection, String fieldName, String fieldValue) {
-        if (checkIsEmail(fieldValue)) {
-            if (!fieldName.equals(FILED_NAME_EMAIL)) {
-                log.debug("Name : " + name + " <" + email + ">");
-                log.debug("E-mail field " + fieldName + ".");
-            }
-        } else {
-            if (fieldName.equals(FIELD_NAME_MOBILE)) {
-                addPhoneMobile(fieldValue);
-            } else if (fieldName.equals(FILED_NAME_EMAIL)) {
-                log.error("E-mail is not valid : " + fieldValue);
-            } else if (fieldName.equals(FIELD_NAME_PHONE)) {
-                addPhoneHome(fieldValue);
+        if (fieldValue == null || fieldValue.length() == 0) return;
+        String[] fieldValues = fieldValue.split(";");
+        boolean unrecognizedPartsPresents = false;
+        for (String value : fieldValues) {
+            if (checkIsEmail(value)) {
+                if (!fieldName.equals(FILED_NAME_EMAIL)) {
+                    log.debug("Name : " + name + " <" + email + ">");
+                    log.debug("E-mail field " + fieldName + ".");
+                }
             } else {
-                addComment(gmailContactSection.name + "." + fieldName, fieldValue);
+                if (fieldName.equals(FIELD_NAME_MOBILE)) {
+                    addPhoneMobile(value);
+                } else if (fieldName.equals(FILED_NAME_EMAIL)) {
+                    log.error("E-mail is not valid : " + value);
+                } else if (fieldName.equals(FIELD_NAME_PHONE)) {
+                    addPhoneHome(value);
+                } else if (fieldName.equals(FIELD_NAME_CHAT)) {
+                    if (value.startsWith("ICQ#")) {
+                        addMessaging(value.replaceAll("[^\\d]", ""), Data.IM_TYPE_ICQ);
+                    } else {
+                        String[] values = value.split(":", 2);
+                        if (values[0].equals("GTALK")) {
+                            if (values[1].contains("@")) {
+                                addMessaging(values[1], Data.IM_TYPE_JABBER);
+                            } else {
+                                addMessaging(values[1] + "@gmail.com", Data.IM_TYPE_JABBER);
+                            }
+                        } else {
+                            String messagingType = IM_TYPES.get(values[0]);
+                            if (messagingType == null) {
+                                log.warn("Messaging type '" + values[0] + "' not found");
+                            } else {
+                                addMessaging(values[1], messagingType);
+                            }
+                        }
+                    }
+                } else {
+                    unrecognizedPartsPresents = true;
+                }
             }
+        }
+        if (unrecognizedPartsPresents) {
+            addComment(gmailContactSection.name + "." + fieldName, fieldValue);
         }
     }
 
