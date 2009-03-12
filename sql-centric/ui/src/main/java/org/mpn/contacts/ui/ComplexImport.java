@@ -140,7 +140,7 @@ public class ComplexImport {
                 importMirandaDbEditorIni.doImport(file);
             } else if (fileName.endsWith(".dat")) {
                 log.info("Import Miranda from dat : " + file);
-                importMirandaDb.doImport(file);
+                importMirandaDb.doImport(file, false);
             } else {
                 log.warn("Unknown miranda file : " + file);
             }

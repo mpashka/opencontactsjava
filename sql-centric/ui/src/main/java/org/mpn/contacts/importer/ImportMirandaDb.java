@@ -441,7 +441,8 @@ public class ImportMirandaDb extends ImportMiranda {
         in.write(v);
     }
 
-    public void doImport(File contactFile) throws IOException {
+    public void doImport(File contactFile, boolean importGroups) throws IOException {
+        setCreateGroup(importGroups);
         in = new RandomAccessFile(contactFile, "r");
         DBHeader dbHeader = new DBHeader();
         dbHeader.read();
@@ -488,6 +489,6 @@ public class ImportMirandaDb extends ImportMiranda {
         File contactFile = new File("C:\\Projects\\jContacts\\.data\\test\\mirandaDbImport\\pavelmoukhataev.dat");
 //        FileInputStream in = new FileInputStream(contactFile);
 
-        new ImportMirandaDb().doImport(contactFile);
+        new ImportMirandaDb().doImport(contactFile, false);
     }
 }

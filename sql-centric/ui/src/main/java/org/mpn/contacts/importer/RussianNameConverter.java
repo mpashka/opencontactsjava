@@ -14,8 +14,13 @@ package org.mpn.contacts.importer;
 
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.RussianNameConverter here
@@ -108,6 +113,8 @@ public class RussianNameConverter {
             {"yo","ё"},
             {"ai","ай"},
             {"kh","х"},
+            {"ou","у"},
+            {"ts","ц"},
             {"a","а"},
             {"b","б"},
             {"v","в"},
@@ -129,7 +136,6 @@ public class RussianNameConverter {
             {"t","т"},
             {"u","у"},
             {"f","ф"},
-            {"kh","х"},
             {"c","ц"},
             {"\"","ъ"},
             {"y","ы"},
@@ -137,27 +143,108 @@ public class RussianNameConverter {
             {"*","'"},
     };
 
+    enum ConvertResult {
+
+    }
+
     private String firstName, lastName, middleName;
 
-    public void convertName(String name, String _firstName, String _middleName, String _lastName) {
-        if (name == null) {
-            firstName = _firstName;
-            middleName = _middleName;
-            lastName = _lastName;
-            return;
+    public Set<String> convertName(String name, String _firstName, String _middleName, String _lastName) {
+        if (name != null) {
+            name = name.trim();
         }
+        if (_firstName != null) {
+            _firstName = _firstName.trim();
+        }
+        if (_middleName != null) {
+            _middleName = _middleName.trim();
+        }
+        if (_lastName != null) {
+            _lastName = _lastName.trim();
+        }
+
         firstName = lastName = middleName = null;
+        if (name == null) {
+            StringBuilder fullName = new StringBuilder();
+            appendString(fullName, " ", _firstName, _middleName, _lastName);
+            convertNames(asStrings(_firstName, _middleName, _lastName), fullName.toString(), _middleName);
+            return null;
+        }
         String[] names = name.split("\\s+");
-        if (names.length == 2) {
-            checkRussianName(names[0], _middleName, names[1]);
-        } else if (names.length == 3) {
-            if (_middleName == null || _middleName.length() < names[1].length()) {
-                _middleName = names[1];
+        Set<String> namesSet = new HashSet<String>(Arrays.asList(names));
+        namesSet.removeAll(Arrays.asList(_firstName, _middleName, _lastName));
+        if (namesSet.isEmpty()) {
+            convertNames(asStrings(_firstName, _middleName, _lastName), name, _middleName);
+            return null;
+        }
+        Set<String> notes = new HashSet<String>();
+        convertNames(asStrings(_firstName, _middleName, _lastName), name, _middleName);
+        String firstName1 = firstName, lastName1 = lastName, middleName1 = middleName;
+        firstName = lastName = middleName = null;
+        convertNames(names, name, _middleName);
+        firstName = select(firstName1, firstName, notes);
+        lastName = select(lastName1, lastName, notes);
+        middleName = select(middleName1, middleName, notes);
+        return notes;
+    }
+
+
+    static String[] asStrings(String... value) {
+        List<String> stringList = new ArrayList<String>();
+        for (String s : value) {
+            if (s != null) {
+                s = s.trim();
+                if (s.length() > 0) {
+                    stringList.add(s);
+                }
             }
-            checkRussianName(names[0], _middleName, names[2]);
+        }
+        return stringList.toArray(new String[stringList.size()]);
+    }
+
+    static String select(String value1, String value2, Set<String> notes) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
         } else {
-            log.warn("Unknown name parts length : " + names.length + " != [2, 3] . of '" + name + "'");
-            firstName = name;
+            if (value1.equalsIgnoreCase(value2)) return value1;
+            else {
+                notes.add(value2);
+                return value1;
+            }
+        }
+    }
+
+    static void appendString(StringBuilder value, String delimiter, String ... values) {
+        for (String s : values) {
+            if (s != null) {
+                s = s.trim();
+                if (s.length() > 0) {
+                    if (value.length() > 0) {
+                        value.append(delimiter);
+                    }
+                    value.append(s);
+                }
+            }
+        }
+    }
+
+
+
+    public boolean convertNames(String[] nameParts, String fullName, String _middleName) {
+        if (nameParts.length == 2) {
+            checkRussianName(nameParts[0], _middleName, nameParts[1]);
+            return true;
+        } else if (nameParts.length == 3) {
+            checkRussianName(nameParts[0], nameParts[1], nameParts[2]);
+            return true;
+        } else if (nameParts.length == 0) {
+            return false;
+        } else {
+            log.warn("Unknown name parts length : " + nameParts.length + " != [2, 3] . of '" + fullName + "'");
+            firstName = fullName;
+            return false;
         }
     }
 

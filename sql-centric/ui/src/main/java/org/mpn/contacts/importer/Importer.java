@@ -43,7 +43,8 @@ public class Importer {
 
     protected static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     protected static final Charset UNICODE_CHARSET = Charset.forName("UTF-16");
-    protected static final Charset DEFAULT_CHARSET = Charset.forName("Cp1251");
+    protected static final Charset WIN_CHARSET = Charset.forName("Cp1251");
+    protected static final Charset DEFAULT_CHARSET = WIN_CHARSET;
 
     protected static final String[] INTERNET_DOMAINS = {
             "com", "ru", "org", "edu", "gov", "jp", "info", "biz", "tv",
@@ -121,6 +122,8 @@ public class Importer {
     private String importerName;
     private boolean importCompany;
     private boolean warningUnknownFields = true;
+
+    private boolean createGroup = false;
 
     public Importer(String importerName, boolean importCompany) {
         this.importerName = importerName;
@@ -202,11 +205,56 @@ public class Importer {
         picture = null;
     }
 
+    private static final Set<String> NON_SEARCH_NAMES = new HashSet<String>(Arrays.asList(
+            "петров", "иванов", "сидоров", "кузнецов", "сергеев"
+    ));
+
     public void importContact() {
-        nameConverter.convertName(fullName, firstName, middleName, lastName);
+/*
+// Check if there is some "buggy" contact that accumulates half a company
+
+        int sameCount = 0;
+        String prevDomain = null;
+        for (String[] strings : messaging) {
+            String id = strings[0];
+            String type = strings[1];
+            if (!type.equals(Data.IM_TYPE_EMAIL)) continue;
+            if (id.indexOf('@') > 0) {
+                String domain = id.split("@", 2)[1];
+                if (prevDomain == null) {
+                    prevDomain = domain;
+                    continue;
+                }
+                if (domain.equalsIgnoreCase(prevDomain)) {
+                    sameCount++;
+                } else {
+                    sameCount = 0;
+                    break;
+                }
+            }
+        }
+        if (sameCount > 3) {
+            log.warn("Ignore complex contact : " + this);
+            return;
+        }
+
+        if (messaging.size() > 10) {
+            log.warn("Ignore complex contact : " + this);
+            return;
+        }
+*/
+
+        Set<String> nameNotes = nameConverter.convertName(fullName, firstName, middleName, lastName);
+        if (nameNotes != null) {
+            for (String nameNote : nameNotes) {
+                addComment("name", nameNote);
+            }
+        }
         firstName = nameConverter.getFirstName();
         lastName = nameConverter.getLastName();
         middleName = nameConverter.getMiddleName();
+
+        checkSymbols(firstName, lastName, middleName, fullName);
 
         Long personId;
         if (messaging.isEmpty()) {
@@ -214,6 +262,10 @@ public class Importer {
 //            return;
             if (firstName == null || lastName == null) {
                 log.error("No contact - no first name/last name/messaging " + this);
+                return;
+            }
+            if (NON_SEARCH_NAMES.contains(lastName.toLowerCase())) {
+                log.warn("Can't search by name since it is wide used : " + this);
                 return;
             }
             personId = searchPersonByName();
@@ -343,8 +395,21 @@ public class Importer {
         }
     }
 
+    private void checkSymbols(String... strings) {
+        for (String string : strings) {
+            if (string == null || string.length() == 0) continue;
+            String replacement = string.replaceAll("[\\p{Print}\\p{InCYRILLIC}]", "");
+            if (replacement.length() > 0) {
+                log.warn("Unknown symbols [" + replacement + "] in " + this);
+            }
+            if (string.endsWith("\"")) {
+                log.warn("Contact ends with \" [" + string + "] in " + this);
+            }
+        }
+    }
+
     private Long searchPersonByName() {
-        for (personTableRow.startIteration(); personTableRow.hasNext(); personTableRow.next()) {
+        for (Row tmprow : personTableRow) {
             if (firstName.equals(personTableRow.getData(Data.personFirstName))
                     &&
                     lastName.equals(personTableRow.getData(Data.personLastName)))
@@ -400,7 +465,7 @@ public class Importer {
         Set<String> presentedPhonesHome = new HashSet<String>();
         if (personId != null) {
             // Read all home phones
-            for (personAddressRow.startIteration(); personAddressRow.hasNext(); personAddressRow.next()) {
+            for (Row tmprow : personAddressRow) {
 
                 Long addressPersonId = personAddressRow.getData(Data.personTable.id);
                 if (personId.equals(addressPersonId)) {
@@ -412,7 +477,7 @@ public class Importer {
                 }
             }
 
-            for (personMessagingTableRow.startIteration(); personMessagingTableRow.hasNext(); personMessagingTableRow.next()) {
+            for (Row tmprow : personMessagingTableRow) {
                 Long addressPersonId = personMessagingTableRow.getData(Data.personTable.id);
                 if (personId.equals(addressPersonId)) {
                     String mobilePhone = personMessagingTableRow.getData(Data.personMessagingId).toLowerCase();
@@ -424,10 +489,18 @@ public class Importer {
         return presentedPhonesHome;
     }
 
+    public void setCreateGroup(boolean createGroup) {
+        this.createGroup = createGroup;
+    }
+
     private void processGroups(Long personId) {
-        boolean createGroup = false;
+        boolean createGroup = this.createGroup;
         if (importCompany) {
-            group.add("Job/" + company + "/" + companyDepartment);
+            if (companyDepartment != null) {
+                group.add("Job/" + company + "/" + companyDepartment);
+            } else {
+                group.add("Job/" + company);
+            }
             createGroup = true;
         } else if (group.isEmpty()) return;
         for (String groupName : group) {
@@ -436,12 +509,12 @@ public class Importer {
     }
 
     private void processOneGroup(Long personId, String group, boolean createGroup) {
-        String groupId = group.replaceAll(" ", "").toLowerCase().trim();
-        for (personGroupTableRow.startIteration(); personGroupTableRow.hasNext(); personGroupTableRow.next()) {
+        String groupId = group.replaceAll("[ \\&]", "").toLowerCase().trim();
+        for (Row tmprow : personGroupTableRow) {
             String presentedGroupIdStr = personGroupTableRow.getData(Data.personGroupIdentity).toLowerCase().trim();
             if (groupId.equals(presentedGroupIdStr)) {
                 Long presentedGroupId = personGroupTableRow.getId();
-                for (personGroupsTableRow.startIteration(); personGroupsTableRow.hasNext(); personGroupsTableRow.next()) {
+                for (Row tmprow2 : personGroupsTableRow) {
                     Long presentedPersonId = personGroupsTableRow.getData(Data.personTable.id);
                     Long presentedGroupId_ = personGroupsTableRow.getData(Data.personGroupTable.id);
                     if (presentedPersonId.equals(personId) && presentedGroupId_.equals(presentedGroupId)) return;
@@ -465,8 +538,9 @@ public class Importer {
             setRowField(Data.personTable.id, personId);
             setRowField(Data.personGroupTable.id, presentedGroupId);
             endRowUpdate(true, personGroupsTableRow);
+        } else {
+            addComment("Group", group);
         }
-        addComment("Group", group);
     }
 
     private Map<Field, Object> rowFields;
@@ -522,11 +596,6 @@ public class Importer {
         rowComments.add(new String[]{comment.toString(), field});
     }
 
-    private void addComment(Set<String> comments, String field, Object comment) {
-        if (comment == null) return;
-        comments.add(field + ":" + comment.toString());
-    }
-
     protected boolean search(Row tableRow, Field<String> field, String data) {
         return search(tableRow, field, data, String.CASE_INSENSITIVE_ORDER);
     }
@@ -579,9 +648,21 @@ public class Importer {
         return false;
     }
 
+    private static final Set<String> SUPPORTED_MESSAGINGS = new HashSet<String>(Arrays.asList(Data.IM_TYPES));
     public void addMessaging(String id, String messagingType) {
         if (id == null) return;
-        id = id.toLowerCase();
+        id = id.toLowerCase().trim();
+        if (id.length() == 0) return;
+
+        if (messagingType.equals(Data.IM_TYPE_ICQ)) {
+//            if (id.contains("/")) {
+//                log.error("INVALID ICQ : " + id);
+//            }
+            id = id.replaceAll("\\D", "");
+        }
+        if (!SUPPORTED_MESSAGINGS.contains(messagingType)) {
+            throw new RuntimeException("Unknown messaging : " + messagingType);
+        }
         messaging.add(new String[]{id, messagingType});
     }
 

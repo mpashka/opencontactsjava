@@ -275,8 +275,8 @@ public class ImportGmail extends ImportCsv {
     static {
         IM_TYPES.put("ICQ", Data.IM_TYPE_ICQ);
         IM_TYPES.put("JABBER", Data.IM_TYPE_JABBER);
-        IM_TYPES.put("SKYPE", Data.IM_TYPE_JABBER);
-//        IM_TYPES.put("MSN", Data.IM_TYPE_JABBER);
+        IM_TYPES.put("SKYPE", Data.IM_TYPE_SKYPE);
+        IM_TYPES.put("MSN", Data.IM_TYPE_MSN);
     }
     private void importGmailField(String name, String email, GmailContactSection gmailContactSection, String fieldName, String fieldValue) {
         if (fieldValue == null || fieldValue.length() == 0) return;

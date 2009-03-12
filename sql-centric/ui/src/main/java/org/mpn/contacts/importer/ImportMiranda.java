@@ -13,6 +13,7 @@
 package org.mpn.contacts.importer;
 
 import org.apache.log4j.Logger;
+import org.mpn.contacts.ui.Data;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -200,6 +201,7 @@ public abstract class ImportMiranda extends Importer {
         */
 
         // Do import
+        if (protocol.toLowerCase().startsWith("jabber")) protocol = Data.IM_TYPE_JABBER;
         addMessaging(id, protocol.toLowerCase());
 
         addPhoneHome(phone);
