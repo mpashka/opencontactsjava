@@ -9,6 +9,7 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
@@ -28,10 +29,10 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,9 +48,10 @@ public class JabberTest2 {
     static final Logger log = Logger.getLogger(JabberTest2.class);
 
     enum ServerType {
-        unavailable, nogateway, noregistration, noresponce, registrationerror, notsubscribed, notvisibleme, notvisiblehim
+        unavailable, nogateway, noregistration, noresponce, registrationerror, notsubscribed, notvisibleme, notvisiblehim, messageMirror, sameMessage
     }
 
+    private static final boolean BREAK_IF_ERROR = false;
 
     private static final String JABBER_SERVER = "talk.google.com";
     private static final int JABBER_PORT = 5222;
@@ -65,103 +67,103 @@ public class JabberTest2 {
 
     private static final String[] ICQ_GATEWAYS = {
 // Source : http://bombus.jrudevels.org/wiki/howto/howto_icq
-"chaoslab.info", 	 "13.net.ru", 	 "deac.ru",
-"geeklife.ru", 	"aftar.ru", 	"jabber.krastalk.ru",
-"gelf.no-ip.org", 	"blasux.ru",
-"informjust.ua", 	"calypso.cn.ua",
-"jabbe.net.ru", 	"deac.ru",
-"jabber.corbina.ru", 	"freeside.ru",
-"jabber.cv.ua", 	"gornyak.net",
-"jabber.crimea.ua", 	"highsecure.ru",
-"jabber.krasu.ru", 	"intramail.ru",
-"jabber.org.ru", 	"jabber.chirt.ru",
-"jabber.spbu.ru", 	"jabber.ck.ua",
-"jabber.splc.ru", 	"jabber.kiev.ua",
-"jabber.te.ua", 	"jabber.lviv.ua",
-"jabber.ukrwest.net", 	"jabber.nnov.net",
-"plotinka.ru", 	"jabber.rfei.ru",
-"sgtp.samara.ru", 	"jabber.rikt.ru",
-"tr.element.dn.ua", 	"jabber.stniva.ru",
-"jabber.te.ua", 	"mytlt.ru",
-"jabber.tsure.ru", 	"jabber.uch.net",
-"13.net.ru", 	"jabe.ru",
-"jabber.b.gz.ru", 	"kanet.ru",
-"jabber.fds-net.ru", 	"mytlt.ru",
-"jabber.krastalk.ru", 	"nclug.ru",
-"jmsk.legion.ru", 	"ratelcom.ru",
-"jabber.kursk.lug.ru", 	"smim.ru",
-"vlg.lukoil.ru", 	"udaff.com",
-"myid.ru", 	"jabber.sv.mh.ru",
-"ilikejabber.ru", 	"medexport-omsk.ru",
-"jabber.nwg-nv.ru", 	"jabe.ru",
-"mo.pp.ru", 	"office.ksn.ru",
-"proc.ru",
-"ru","lezz.ru",
+            "chaoslab.info", 	 "13.net.ru", 	 "deac.ru",
+            "geeklife.ru", 	"aftar.ru", 	"jabber.krastalk.ru",
+            "gelf.no-ip.org", 	"blasux.ru",
+            "informjust.ua", 	"calypso.cn.ua",
+            "jabbe.net.ru", 	"deac.ru",
+            "jabber.corbina.ru", 	"freeside.ru",
+            "jabber.cv.ua", 	"gornyak.net",
+            "jabber.crimea.ua", 	"highsecure.ru",
+            "jabber.krasu.ru", 	"intramail.ru",
+            "jabber.org.ru", 	"jabber.chirt.ru",
+            "jabber.spbu.ru", 	"jabber.ck.ua",
+            "jabber.splc.ru", 	"jabber.kiev.ua",
+            "jabber.te.ua", 	"jabber.lviv.ua",
+            "jabber.ukrwest.net", 	"jabber.nnov.net",
+            "plotinka.ru", 	"jabber.rfei.ru",
+            "sgtp.samara.ru", 	"jabber.rikt.ru",
+            "tr.element.dn.ua", 	"jabber.stniva.ru",
+            "jabber.te.ua", 	"mytlt.ru",
+            "jabber.tsure.ru", 	"jabber.uch.net",
+            "13.net.ru", 	"jabe.ru",
+            "jabber.b.gz.ru", 	"kanet.ru",
+            "jabber.fds-net.ru", 	"mytlt.ru",
+            "jabber.krastalk.ru", 	"nclug.ru",
+            "jmsk.legion.ru", 	"ratelcom.ru",
+            "jabber.kursk.lug.ru", 	"smim.ru",
+            "vlg.lukoil.ru", 	"udaff.com",
+            "myid.ru", 	"jabber.sv.mh.ru",
+            "ilikejabber.ru", 	"medexport-omsk.ru",
+            "jabber.nwg-nv.ru", 	"jabe.ru",
+            "mo.pp.ru", 	"office.ksn.ru",
+            "proc.ru",
+            "ru","lezz.ru",
 
 
 // Source : http://www.ejabberd.im/servers
-"2on.net",
-"aszlig.net",
-"autistici.org",
-"AwaitsYou.com",
-"chat.gizmoproject.com",
-"crocobox.org",
-"debianforum.de",
-"draugr.de",
-"erlang-projects.org",
-"fab4.be",
-"gmx.de",
-"goim.us",
-"hapi.pl",
-"jabber.3gnt.org",
-"jabster.pl",
-"jabber.belnet.be",
-"jabber.cz",
-"jabber.dol.ru",
-"jabber.dn.ua",
-"jabber-hispano.org",
-"jabber.i-pobox.net",
-"jabber.i1.ru",
-"jabber.ivanovo.ru",
-"jabber.kiev.ua",
-"jabber.linux.it",
-"jabber.linuxlovers.at",
-"jabber.lotsofshells.net",
-"jabber.minus273.org",
-"jabber.no",
-"jabber.org",
-"jabber.org.au",
-"jabber.postel.org",
-"jabber.psg.com",
-"jabber.rtelekom.ru",
-"jabber.ru",
-"jabber.se",
-"jabber.sbin.org",
-"jabber.snc.ru",
-"jabber.ttn.ru",
-"jabber.ulyssis.org",
-"jabber.xs4all.nl",
-"jabber4friends.de",
-"jabberquebec.net",
-"jabberchicago.net",
-"jabberes.org",
-"jabberland.com",
-"jabberme.de",
-"jabbernet.es",
-"jabbim.cz",
-"jabe.ru",
-"jaim.at",
-"jbother.org",
-"kdetalk.net",
-"njs.netlab.cz",
-"shady.nl",
-"phcn.de",
-"ugatu.net",
-"unstable.nl",
-"ursine.ca",
-"volgograd.ru",
-"volity.net",
-"xmpp.ru",
+            "2on.net",
+            "aszlig.net",
+            "autistici.org",
+            "AwaitsYou.com",
+            "chat.gizmoproject.com",
+            "crocobox.org",
+            "debianforum.de",
+            "draugr.de",
+            "erlang-projects.org",
+            "fab4.be",
+            "gmx.de",
+            "goim.us",
+            "hapi.pl",
+            "jabber.3gnt.org",
+            "jabster.pl",
+            "jabber.belnet.be",
+            "jabber.cz",
+            "jabber.dol.ru",
+            "jabber.dn.ua",
+            "jabber-hispano.org",
+            "jabber.i-pobox.net",
+            "jabber.i1.ru",
+            "jabber.ivanovo.ru",
+            "jabber.kiev.ua",
+            "jabber.linux.it",
+            "jabber.linuxlovers.at",
+            "jabber.lotsofshells.net",
+            "jabber.minus273.org",
+            "jabber.no",
+            "jabber.org",
+            "jabber.org.au",
+            "jabber.postel.org",
+            "jabber.psg.com",
+            "jabber.rtelekom.ru",
+            "jabber.ru",
+            "jabber.se",
+            "jabber.sbin.org",
+            "jabber.snc.ru",
+            "jabber.ttn.ru",
+            "jabber.ulyssis.org",
+            "jabber.xs4all.nl",
+            "jabber4friends.de",
+            "jabberquebec.net",
+            "jabberchicago.net",
+            "jabberes.org",
+            "jabberland.com",
+            "jabberme.de",
+            "jabbernet.es",
+            "jabbim.cz",
+            "jabe.ru",
+            "jaim.at",
+            "jbother.org",
+            "kdetalk.net",
+            "njs.netlab.cz",
+            "shady.nl",
+            "phcn.de",
+            "ugatu.net",
+            "unstable.nl",
+            "ursine.ca",
+            "volgograd.ru",
+            "volity.net",
+            "xmpp.ru",
 
     };
 
@@ -185,18 +187,22 @@ public class JabberTest2 {
 
     private static final String ICQ_USER = "166679359";
 
-    private static final long REGISTER_TIMEOUT = 5000;
+    private static final long OPERATION_TIMEOUT = 10000;
 
     private ServiceDiscoveryManager discoManager;
     private XMPPConnection conn;
 
     private int icqUserNumber;
+    private String gatewayJid;
 
     private SimpleMessageListener simpleMessageListener = new SimpleMessageListener();
 
     private Map<String, Set<ServerType>> testResults = new TreeMap<String, Set<ServerType>>();
+    private Set<String> aliveServers = new HashSet<String>();
 
     Map<String, Presence> presenceData = new ConcurrentHashMap<String, Presence>();
+
+    private boolean presenceExists;
 
     @Test
     public void testJabber() throws IOException {
@@ -229,6 +235,7 @@ public class JabberTest2 {
             public void processPacket(Packet packet) {
 //                log.trace("                >>> Incoming packet : " + packet.getClass() + " -> " + packet.toXML());
                 if (packet instanceof Presence) {
+                    presenceExists = true;
                     Presence presence = (Presence) packet;
                     if (presence.getType() == Presence.Type.subscribe) {
                         // Accept all subscription requests.
@@ -236,6 +243,9 @@ public class JabberTest2 {
                         response.setTo(presence.getFrom());
                         conn.sendPacket(response);
                         log.info("            Subscribed for " + presence.getFrom());
+                        if (!presence.getFrom().endsWith(gatewayJid)) {
+                            log.warn("Unknown subscription : " + presence.getFrom());
+                        }
                     } else if (presence.getType() == Presence.Type.unsubscribe) {
                         // Acknowledge and accept unsubscription notification so that the
                         // server will stop sending notifications saying that the contact
@@ -247,7 +257,7 @@ public class JabberTest2 {
                         // Otherwise, in manual mode so ignore.
                         log.info("            UnSubscribed for " + presence.getFrom());
                     } else {
-                        log.trace("            Presence [" + presence.getFrom() + "] : " + presence);
+                        log.trace("            Presence [" + presence.getFrom() + "] : " + presence.toXML());
                         presenceData.put(presence.getFrom().replaceAll("/.*", ""), presence);
                     }
 
@@ -283,10 +293,10 @@ public class JabberTest2 {
 
         {
 // Create a new presence. Pass in false to indicate we're unavailable.
-        Presence presence = new Presence(Presence.Type.available);
-        presence.setStatus("Hello! I am here! Testing ICQ Gateways...");
+            Presence presence = new Presence(Presence.Type.available);
+            presence.setStatus("Hello! I am here! Testing ICQ Gateways...");
 // Send the packet (assume we have a XMPPConnection instance called "con").
-        conn.sendPacket(presence);
+            conn.sendPacket(presence);
         }
 
         // Obtain the ServiceDiscoveryManager associated with my XMPPConnection
@@ -296,14 +306,13 @@ public class JabberTest2 {
         simpleMessageListener.start();
 
         for (String jabberGateway : ICQ_GATEWAYS) {
-            log.info("Test server " + jabberGateway);
             try {
                 if (testJabberGateway(jabberGateway) == 0) {
-                    log.info("    No ICQ gateways");
+//                    log.info("    No ICQ gateways");
                     testResults.put(jabberGateway, EnumSet.of(ServerType.nogateway));
                 }
             } catch (Exception e) {
-                log.error("IO Error testing " + jabberGateway + " : " + e);
+//                log.error("IO Error testing " + jabberGateway + " : " + e);
                 testResults.put(jabberGateway, EnumSet.of(ServerType.unavailable));
             }
         }
@@ -315,6 +324,15 @@ public class JabberTest2 {
 
 //        waitPressKey("EXIT");
 
+        log.info("Test results...");
+        for (Map.Entry<String, Set<ServerType>> stringSetEntry : testResults.entrySet()) {
+            log.info("Server : " + stringSetEntry.getKey() + ", result : " + stringSetEntry.getValue());
+        }
+
+        log.info("Alive servers...");
+        for (String aliveServer : aliveServers) {
+            log.info(aliveServer);
+        }
     }
 
     /*
@@ -333,7 +351,7 @@ public class JabberTest2 {
             String entityID = item.getEntityID();
 //            log.trace("        Entity " + entityID);
             if (!entityID.contains("icq")) continue;
-            log.trace("    Entity info " + entityID);
+//            log.trace("    Entity info " + entityID);
             DiscoverInfo itemInfo = discoManager.discoverInfo(entityID);
             Iterator<DiscoverInfo.Identity> identityIterator = itemInfo.getIdentities();
             boolean icqGateway = false;
@@ -344,48 +362,66 @@ public class JabberTest2 {
                 }
             }
             if (!itemInfo.containsFeature("jabber:iq:register")) {
-                log.info("        Gateway doesn't support registration : " + entityID);
+//                log.info("        Gateway doesn't support registration : " + entityID);
                 testResults.put(entityID, EnumSet.of(ServerType.noregistration));
                 continue;
             }
             if (icqGateway) {
-                log.trace("        Check ICQ gateway : " + entityID);
-                List<DiscoverInfo.Feature> features = (List<DiscoverInfo.Feature>) PrivilegedAccessor.getValue(itemInfo, "features");
-                List<DiscoverInfo.Identity> identities = (List<DiscoverInfo.Identity>) PrivilegedAccessor.getValue(itemInfo, "identities");
-                for (DiscoverInfo.Feature feature : features) {
-                    log.trace("            Feature : " + feature.getVar() /*+ "(" + feature.toXML() + ")"*/);
-                }
-                for (DiscoverInfo.Identity identity : identities) {
-                    log.trace("            Identity. Category : " + identity.getCategory() + ", name : " + identity.getName() + ", type : " + identity.getType()/* + " (" + identity.toXML() + ")"*/);
-                }
+//                log.trace("        Check ICQ gateway : " + entityID);
+//                List<DiscoverInfo.Feature> features = (List<DiscoverInfo.Feature>) PrivilegedAccessor.getValue(itemInfo, "features");
+//                List<DiscoverInfo.Identity> identities = (List<DiscoverInfo.Identity>) PrivilegedAccessor.getValue(itemInfo, "identities");
+//                for (DiscoverInfo.Feature feature : features) {
+//                    log.trace("            Feature : " + feature.getVar() /*+ "(" + feature.toXML() + ")"*/);
+//                }
+//                for (DiscoverInfo.Identity identity : identities) {
+//                    log.trace("            Identity. Category : " + identity.getCategory() + ", name : " + identity.getName() + ", type : " + identity.getType()/* + " (" + identity.toXML() + ")"*/);
+//                }
                 icqGatewayCount++;
                 EnumSet<ServerType> result = EnumSet.noneOf(ServerType.class);
-                testIcqGateway(entityID, result);
+                gatewayJid = entityID;
+                testIcqGateway(result);
+                gatewayJid = null;
                 testResults.put(entityID, result);
             }
         }
         return icqGatewayCount;
     }
 
-    private void testIcqGateway(String icqGateway, EnumSet<ServerType> result) throws Exception {
+    private void testIcqGateway(EnumSet<ServerType> result) throws Exception {
+        Thread.sleep(60 * 1000);
+        presenceExists = false;
+
+        log.info(gatewayJid);
         Roster roster = conn.getRoster();
-        if (roster.getEntry(icqGateway) == null) {
-            ServerType responceType = registerOnGateway(icqGateway);
-            if (responceType != null) {
-                result.add(responceType);
+        if (roster.getEntry(gatewayJid) == null) {
+            ServerType responseType = registerOnGateway();
+            if (responseType != null) {
+                result.add(responseType);
             }
         } else {
-            Presence gatewayPresence = roster.getPresence(icqGateway);
+            log.warn("    Gateway already presents : " + gatewayJid);
+            Presence gatewayPresence = roster.getPresence(gatewayJid);
             if (!gatewayPresence.isAvailable()) {
-                loginToGateway(icqGateway);
+                loginToGateway();
             }
         }
+        if (!result.isEmpty()) return;
 
-        String userJid = ICQ_USER + '@' + icqGateway;
+        String userJid = ICQ_USER + '@' + gatewayJid;
         addContact(userJid);
         Chat chat = conn.getChatManager().createChat(userJid, simpleMessageListener);
         simpleMessageListener.setChat(chat);
-        boolean wasOnline = waitPressKey("remove gateway");
+//        boolean wasOnline = waitPressKey("check if user was online in ICQ");
+        Thread.sleep(60 * 1000);
+        if (presenceExists) {
+            aliveServers.add(gatewayJid);
+        }
+
+        boolean wasOnline = true;
+        if (simpleMessageListener.error != null) result.add(simpleMessageListener.error);
+        if (simpleMessageListener.error == ServerType.sameMessage) {
+            log.warn("    Server message : " + simpleMessageListener.lastMessage);
+        }
         simpleMessageListener.setChat(null);
         RosterEntry icqUser = roster.getEntry(userJid);
         boolean icqUserSubscribed = icqUser != null && icqUser.getType() == RosterPacket.ItemType.both;
@@ -397,18 +433,30 @@ public class JabberTest2 {
         if (!wasOnline) result.add(ServerType.notvisibleme);
         if (!icqUserSubscribed) result.add(ServerType.notvisiblehim);
 
-        RosterEntry icqGatewayUser = roster.getEntry(icqGateway);
+        RosterEntry icqGatewayUser = roster.getEntry(gatewayJid);
         boolean gatewaySubscribed = icqGatewayUser != null && icqGatewayUser.getStatus() != RosterPacket.ItemStatus.SUBSCRIPTION_PENDING;
 
 //        if (!icqUserSubscribed || !icqUserOnline) {
 //            log.warn("Use");
 //        }
 
-//        logoutFromGateway(icqGateway);
-        unregisterOnGateway(icqGateway);
+//        logoutFromGateway(gatewayJid);
+        unregisterOnGateway();
 
-//        removeAllIcqUsers(conn);
-        
+        removeAllIcqUsers();
+
+    }
+
+    private void removeAllIcqUsers() throws XMPPException {
+//        log.info("Remove all icq users...");
+        Roster roster = conn.getRoster();
+        for (RosterEntry rosterEntry : roster.getEntries()) {
+            if (rosterEntry.getUser().endsWith(gatewayJid)) {
+                log.trace("    Removing ICQ user " + rosterEntry.getName());
+                roster.removeEntry(rosterEntry);
+            }
+        }
+//        log.info("Remove OK");
     }
 
 
@@ -424,9 +472,10 @@ public class JabberTest2 {
             log.trace("    User succesfully registered");
         } else {
 
-            RosterPacket.ItemStatus status = icqUserNorm.getStatus();
-            log.trace("     User is not subscribed yet. Status : " + status);
+//            RosterPacket.ItemStatus status = icqUserNorm.getStatus();
+//            log.trace("     User is not subscribed yet. Status : " + status);
 
+/*
             {
                 Presence presencePacket = new Presence(Presence.Type.subscribe);
                 presencePacket.setTo(userJid);
@@ -440,6 +489,7 @@ public class JabberTest2 {
                 presencePacket.setFrom(conn.getUser());
                 conn.sendPacket(presencePacket);
             }
+*/
         }
     }
 
@@ -448,8 +498,8 @@ public class JabberTest2 {
     /*
      * JEP 100 4.1.1 Sequence.  Basic Registration
      */
-    private ServerType registerOnGateway(String gatewayJid) {
-        log.trace("            Register");
+    private ServerType registerOnGateway() {
+//        log.trace("    Register");
 
 /*
 This code is used to get registration form information
@@ -458,20 +508,21 @@ This code is used to get registration form information
         PacketCollector subscription = conn.createPacketCollector(new PacketTypeFilter(Presence.class));
 
         try {
-        // 4.1.1.3 Jabber User sends IQ get qualified by the In-Band Registration
-        Registration request = new Registration();
-        request.setType(IQ.Type.GET);
-        request.setTo(gatewayJid);
-        conn.sendPacket(request);
+            // 4.1.1.3 Jabber User sends IQ get qualified by the In-Band Registration
+            Registration request = new Registration();
+            request.setType(IQ.Type.GET);
+            request.setTo(gatewayJid);
+            conn.sendPacket(request);
 
-        // 4.1.1.4 Gateway returns IQ result to Jabber User, specifying information that
-        //  is required in order to registerOnGateway
-        Registration registrationDataResponse = (Registration) registrationCollector.nextResult();
-        if (registrationDataResponse == null) {
-            log.warn("        No response");
-            return ServerType.noresponce;
-        }
+            // 4.1.1.4 Gateway returns IQ result to Jabber User, specifying information that
+            //  is required in order to registerOnGateway
+            Registration registrationDataResponse = (Registration) registrationCollector.nextResult();
+            if (registrationDataResponse == null) {
+                log.warn("    No response [get]");
+                return ServerType.noresponce;
+            }
 
+/*
         log.trace("        Gateway response...");
         log.trace("            From : " + registrationDataResponse.getFrom());
         log.trace("            Attributes : " + registrationDataResponse.getAttributes());
@@ -479,98 +530,131 @@ This code is used to get registration form information
         log.trace("            Instructions : " + registrationDataResponse.getInstructions());
         log.trace("            XML : " + registrationDataResponse.getChildElementXML());
 //            registrationCollector.cancel();
+*/
+            if (!registrationDataResponse.getFrom().equals(gatewayJid)) {
+                log.warn("    Gateway From differs : " + registrationDataResponse.getFrom());
+            }
 
 
-        Registration registration = new Registration();
-        registration.setType(IQ.Type.SET);
-        registration.setTo(registrationDataResponse.getFrom());
+            Registration registration = new Registration();
+            registration.setType(IQ.Type.SET);
+            registration.setTo(registrationDataResponse.getFrom());
 
-        String[] icqAccount = ICQ_ACCOUNTS[icqUserNumber % ICQ_ACCOUNTS.length];
-        DataForm df = new DataForm("submit");
-        FormField pwdField = new FormField("password");
-        pwdField.addValue(icqAccount[1]);
-        FormField usrField = new FormField("username");
-        usrField.addValue(icqAccount[0]);
+            String[] icqAccount = ICQ_ACCOUNTS[icqUserNumber % ICQ_ACCOUNTS.length];
+            DataForm df = new DataForm("submit");
+            FormField usrField = new FormField("username");
+            usrField.addValue(icqAccount[0]);
+            FormField pwdField = new FormField("password");
+            pwdField.addValue(icqAccount[1]);
 
-        df.addField(pwdField);
-        df.addField(usrField);
-        registration.addExtension(df);
-        icqUserNumber++;
+            log.info("        " + icqAccount[0]);
+
+            df.addField(pwdField);
+            df.addField(usrField);
+            registration.addExtension(df);
+            icqUserNumber++;
 
 
 //        log.trace("    create packetCollector and send message");
 
-        conn.sendPacket(registration);
+            conn.sendPacket(registration);
 
 //        log.trace("    message sent; waiting");
 
-        IQ registerResponse = (IQ) registrationCollector.nextResult(REGISTER_TIMEOUT);
-        registrationCollector.cancel();
+            IQ registerResponse = (IQ) registrationCollector.nextResult(OPERATION_TIMEOUT);
+//            registrationCollector.cancel();
 
-        if (registerResponse == null) {
-            log.warn("        no response from server for register: " + gatewayJid);
+            if (registerResponse == null) {
+                log.warn("    no response [register]");
 //            gatewayActiveStatus.put(gwPrefix, new Boolean(false));
 //            return true;
-            return ServerType.noresponce;
-        }
+                return ServerType.noresponce;
+            }
 
-        if (registerResponse.getType() == IQ.Type.ERROR) {
+            if (registerResponse.getType() == IQ.Type.ERROR) {
 //            errorMessage = registrationDataResponse.getError().getMessage();
-            log.warn("        error registering with gateway: " + gatewayJid + " error=" + registerResponse.getError().toXML());
+                log.warn("    error registering with gateway: " + gatewayJid + " error=" + registerResponse.getError().toXML());
 //            gatewayActiveStatus.put(gwPrefix, new Boolean(false));
 //            return true;
-            return ServerType.registrationerror;
-        }
+
+                if (BREAK_IF_ERROR) {
+                    return ServerType.registrationerror;
+                }
+            }
 
 //        gatewayActiveStatus.put(gwPrefix, new Boolean(true));
 
 //        return loginToGateway(gatewayJid);
 
-        // TODO 4.1.1.8 Optionally, Jabber User sends IQ set qualified by the 'jabber:iq:roster'
-        //  namespace to its server
+            // TODO 4.1.1.8 Optionally, Jabber User sends IQ set qualified by the 'jabber:iq:roster'
+            //  namespace to its server
 
 
-        // 4.1.1.9 Gateway sends subscription request to Jabber User
-        for(int i = 0; i < 3; i++) {
-            Presence p = (Presence) subscription.nextResult(5 * 1000);
-            if (p == null) {
-                log.warn("    no gateway presence response");
-                return ServerType.notsubscribed;
+            // 4.1.1.9 Gateway sends subscription request to Jabber User
+            for(int i = 0; i < 3; i++) {
+                Presence p = (Presence) subscription.nextResult(OPERATION_TIMEOUT);
+                if (p == null) {
+                    log.warn("    no gateway presence response");
+                    if (BREAK_IF_ERROR) {
+                        return ServerType.notsubscribed;
+                    } else {
+                        break;
+                    }
+                }
+                log.trace("        gateway presence: " + p.toXML());
+                if(p.getType().equals(Presence.Type.subscribe)) {
+                    // 4.1.1.10 Jabber User's client SHOULD approve the subscription request
+                    Presence subscribed = new Presence(Presence.Type.subscribed);
+                    subscribed.setTo(p.getFrom());
+                    conn.sendPacket(subscribed);
+                    break;
+                } else {
+                    log.warn("    unknown presence : " + p.toXML());
+                }
             }
-            log.trace("        gateway presence: " + p.toXML());
-            if(p.getType().equals(Presence.Type.subscribe)) {
-                // 4.1.1.10 Jabber User's client SHOULD approve the subscription request
-                Presence subscribed = new Presence(Presence.Type.subscribed);
-                subscribed.setTo(p.getFrom());
-                conn.sendPacket(subscribed);
-                break;
-            } else {
-                log.warn("    unknown presence : " + p.toXML());
+
+
+            // 4.1.1.11 Jabber User sends subscription request to Gateway
+            Presence gatewaySub = new Presence(Presence.Type.subscribe);
+            gatewaySub.setTo(gatewayJid);
+            conn.sendPacket(gatewaySub);
+
+            // 4.1.1.12 Gateway sends approves subscription request
+            for(int i = 0; i < 3; i++) {
+                Presence p = (Presence) subscription.nextResult(OPERATION_TIMEOUT);
+                if (p == null) {
+                    log.warn("    no presense response from server");
+                    if (BREAK_IF_ERROR) {
+                        return ServerType.notsubscribed;
+                    } else {
+                        break;
+                    }
+                }
+                log.trace("        gateway subscribe response : " + p.toXML());
+                if(p.getType().equals(Presence.Type.subscribed)) {
+                    break;
+                } else {
+                    log.warn("    unknown presence : " + p.toXML());
+                }
             }
-        }
 
+//            * 4.4.1 login
+            {
+                Presence p = new Presence(Presence.Type.available);
+                p.setTo(gatewayJid);
+                conn.sendPacket(p);
 
-        // 4.1.1.11 Jabber User sends subscription request to Gateway
-        Presence gatewaySub = new Presence(Presence.Type.subscribe);
-        gatewaySub.setTo(gatewayJid);
-        conn.sendPacket(gatewaySub);
-
-        // 4.1.1.12 Gateway sends approves subscription request
-        for(int i = 0; i < 3; i++) {
-            Presence p = (Presence) subscription.nextResult(10 * 1000);
-            if (p == null) {
-                log.warn("    no prensense responce from server");
-                return ServerType.notsubscribed;
+                Presence pResult = (Presence) subscription.nextResult(OPERATION_TIMEOUT);
+                if (pResult == null) {
+                    log.warn("    Login empty responce");
+                } else {
+                    log.trace("    Login responce : " + p.toXML());
+                }
             }
-            log.trace("        gateway subscribe response : " + p.toXML());
-            if(p.getType().equals(Presence.Type.subscribed)) {
-                break;
-            } else {
-                log.warn("    unknown presence : " + p.toXML());
-            }
-        }
 
-        return null;
+
+
+            return null;
         } finally {
             registrationCollector.cancel();
             subscription.cancel();
@@ -580,8 +664,8 @@ This code is used to get registration form information
     /*
      * JEP 100 4.3 Unregistration
      */
-    private void unregisterOnGateway(final String gatewayJid) {
-        log.info("Unsubscribe from " + gatewayJid);
+    private void unregisterOnGateway() {
+//        log.info("Unsubscribe from " + gatewayJid);
         // 4.3.1.1 Jabber User sends IQ set in 'jabber:iq:registerOnGateway' namespace to Gateway,
         //  containing empty <remove/> element
         Registration conv1 = new Registration();
@@ -609,16 +693,16 @@ This code is used to get registration form information
 */
 
 
-        log.info("Unsubscribed. Waiting for unsubscribe presence packets...");
+//        log.info("Unsubscribed. Waiting for unsubscribe presence packets...");
         // 4.3.1.2 and 4.3.1.3 happen on the server
 
         // 4.3.1.4 Gateway sends IQ result to Jabber User
-        Packet response = resultCollector.nextResult(REGISTER_TIMEOUT);
-        log.info("    Info from unregister : " + response);
+        Packet response = resultCollector.nextResult(OPERATION_TIMEOUT);
+//        log.info("    Info from unregister : " + response);
         if (response == null) {
             log.warn("    Unregister timeout");
         } else {
-            log.trace("        Unregister response : " + response.toXML());
+            log.trace("    Unregister response : " + response.toXML());
 
             boolean unsubscribed = false;
             boolean unsubscribe = false;
@@ -626,7 +710,7 @@ This code is used to get registration form information
 
 
             while(!unsubscribe || !unsubscribed) {
-                Presence p = (Presence)presenceCollector.nextResult(10 * 1000);
+                Presence p = (Presence)presenceCollector.nextResult(OPERATION_TIMEOUT);
                 assert p != null : "Missing presence packet. State[unsubcribe: " + unsubscribe + ", unsubscribed: " + unsubscribed + ", unavailable: " + unavailable + "]";
 
                 // 4.3.1.5 Gateway cancels subscriptions
@@ -645,7 +729,7 @@ This code is used to get registration form information
             }
 
             if(!unavailable) {
-                log.info("Unable to get UNAVAILABLE...JM does not forward those type of requests");
+                log.warn("    Unable to get UNAVAILABLE...JM does not forward those type of requests");
             }
 
             presenceCollector.cancel();
@@ -656,7 +740,7 @@ This code is used to get registration form information
     /*
      * JEP-100 4.4.1 Log In
      */
-    private boolean loginToGateway(String gatewayJid) {
+    private boolean loginToGateway() {
         log.trace("            sending presence to gateway");
 
         {
@@ -679,7 +763,7 @@ This code is used to get registration form information
     /*
      * JEP-100 4.5.1 Log Out
      */
-    private void logoutFromGateway(String gatewayJid) throws Exception {
+    private void logoutFromGateway() throws Exception {
         log.trace("    Logout from " + gatewayJid);
         // 4.5.1 Jabber User sends unavailable presence broadcast to Server
         Presence unavailable = new Presence(Presence.Type.unavailable);
@@ -722,9 +806,13 @@ This code is used to get registration form information
     public class SimpleMessageListener extends Thread implements MessageListener {
 
         private Chat chat;
+        private ServerType error;
+        private String lastMessage;
 
         public void setChat(Chat chat) {
             this.chat = chat;
+            error = null;
+            lastMessage = null;
         }
 
         public void processMessage(Chat chat, Message message) {
@@ -738,9 +826,18 @@ This code is used to get registration form information
             log.trace("        body: " + message.getBody());
 */
             for (String s : CHAT_MESSAGES) {
-                if (message.getBody().equals(s)) return;
+                if (message.getBody().equals(s)) {
+                    error = ServerType.messageMirror;
+                    return;
+                }
             }
+            if (message.getBody().equals(lastMessage)) {
+                error = ServerType.sameMessage;
+                return;
+            }
+            error = null;
             log.trace("    Received msg from " + message.getFrom() + " : " + message.getBody());
+            lastMessage = message.getBody();
         }
 
         @Override

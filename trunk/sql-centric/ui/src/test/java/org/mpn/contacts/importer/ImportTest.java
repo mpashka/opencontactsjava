@@ -120,8 +120,8 @@ public class ImportTest {
 
 
         importRegexpBase.setImportCompany(false);
-        importRegexpBase.doStreamImport(Pattern.compile(",[\\s]*"), null, new File(rootImportDir, "csv/e-mail.contacts.2005-09-21.txt"),
-                Pattern.compile("\\\"?([^<]*)[\" ]*<([^>]+)>"), new String[]{"fullName", "messagingEmail"});
+        importRegexpBase.doStreamImport(Pattern.compile("[\\s]*,[\\s]*"), null, new File(rootImportDir, "csv/e-mail.contacts.2005-09-21.txt"),
+                Pattern.compile("\\\"?(.*?)[\"\\s]*<([^>]+)>"), new String[]{"fullName", "messagingEmail"}, Importer.WIN_CHARSET);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class ImportTest {
 
     @Test
     public void testImportMirandaDb() throws IOException {
-        importMirandaDb.doImport(new File(rootImportDir, "Miranda/pavelmoukhataev.2008-01-17.dat"));
+        importMirandaDb.doImport(new File(rootImportDir, "Miranda/pavelmoukhataev.2008-01-17.dat"), true);
     }
 
 
@@ -190,7 +190,7 @@ public class ImportTest {
                 importMirandaDbEditorIni.doImport(file);
             } else if (fileName.endsWith(".dat")) {
                 log.info("Import Miranda from dat : " + file);
-                importMirandaDb.doImport(file);
+                importMirandaDb.doImport(file, false);
             } else {
                 log.warn("Unknown miranda file : " + file);
             }

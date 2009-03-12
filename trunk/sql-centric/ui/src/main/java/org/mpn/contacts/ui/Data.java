@@ -16,7 +16,8 @@ public interface Data {
     String IM_TYPE_ICQ = "icq";
     String IM_TYPE_JABBER = "jabber";
     String IM_TYPE_MOBILE = "mobile";
-    String[] IM_TYPES = {IM_TYPE_EMAIL, IM_TYPE_ICQ, IM_TYPE_JABBER, IM_TYPE_SKYPE};
+    String IM_TYPE_MSN = "msn";
+    String[] IM_TYPES = {IM_TYPE_EMAIL, IM_TYPE_ICQ, IM_TYPE_JABBER, IM_TYPE_SKYPE, IM_TYPE_MSN};
 
 
     Field<String> email = new Field<String>(String.class, "email");

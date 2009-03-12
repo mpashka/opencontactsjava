@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Map;
+import java.nio.charset.Charset;
 
 /**
  * todo [!] Create javadocs for org.mpn.contacts.ui.ImportRegexpBase here
@@ -37,8 +38,13 @@ public class ImportRegexpBase extends Importer {
         super(importerName, importCompany);
     }
 
+
     public void doStreamImport(Pattern delimiter, Map<String, String> predefinedFields, File fileName, Pattern regexp, String[] fieldNames) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)/*, DEFAULT_CHARSET*/));
+        doStreamImport(delimiter, predefinedFields, fileName, regexp, fieldNames, DEFAULT_CHARSET);
+    }
+
+    public void doStreamImport(Pattern delimiter, Map<String, String> predefinedFields, File fileName, Pattern regexp, String[] fieldNames, Charset charset) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), charset));
         char[] buffer = new char[10000];
         StringBuilder data = new StringBuilder();
         int length;
