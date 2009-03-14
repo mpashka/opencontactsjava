@@ -57,8 +57,7 @@ public abstract class AbstractDataSourceTableModel implements TableModel {
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Row row = getRow(rowIndex);
-        return row.getData()[columnIndex];
+        return dataSource.getRowData(rowIndex)[columnIndex];
     }
 
     public abstract Row getRow(int rowIndex);

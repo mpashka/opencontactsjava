@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.mpn.contacts.framework.EventGeneratorBase;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * @author <a href="mailto:pmoukhataev@dev.java.net">Pavel Moukhataev</a>
@@ -32,6 +33,11 @@ public class DbTableRow extends EventGeneratorBase<Row> implements Row {
 
     public DataSource getDataSource() {
         return dbTable;
+    }
+
+    public Iterator<Row> iterator() {
+        startIteration();
+        return this;
     }
 
     public void startIteration() {
@@ -81,6 +87,7 @@ public class DbTableRow extends EventGeneratorBase<Row> implements Row {
 
     public void setIndex(int index) {
         this.index = index;
+        update();
     }
 
     public boolean update() {
@@ -104,6 +111,7 @@ public class DbTableRow extends EventGeneratorBase<Row> implements Row {
 
     public void clearData() {
         Arrays.fill(rowData, null);
+
     }
 
     public void commitInsert() {
