@@ -60,6 +60,8 @@ public class ImportTest {
 
         importGmail();
 
+        testImportMirandaDb();
+
         importMirandaFolder();
 
         importCsvTheBat();

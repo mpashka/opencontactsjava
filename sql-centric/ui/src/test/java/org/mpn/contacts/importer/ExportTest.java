@@ -30,8 +30,22 @@ public class ExportTest {
 
     @Test
     public void exportGmail() throws IOException {
-//        new ExportGmail().doExportGmail(new File("target/gmail.csv"));
-        new ExportGmail().doExportGmail(new File("target"), 50);
+        new ExportGmailCsv().doExportGmail(new File("target/gmail.csv"));
+//        new ExportGmailCsv().doExportGmail(new File("target"), 50);
 //        new ExportGmail().doExportGmail(new File("target"), 10);
+    }
+
+    @Test
+    public void exportGmailWWW() throws Exception {
+        TestProperties testProperties = TestProperties.getInstance();
+        new ExportGmailWww().doExportGmail(testProperties.getProperty("google.login.production"), testProperties.getProperty("google.password.production"));
+
+    }
+
+    @Test
+    public void exportJabber() throws Exception {
+        TestProperties testProperties = TestProperties.getInstance();
+        new ExportJabber().doExport(testProperties.getProperty("google.login.production"), testProperties.getProperty("google.password.production"));
+
     }
 }

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +36,7 @@ import java.util.Set;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public class ExportGmail {
+public class ExportGmailCsv {
 
     static final Logger log = Logger.getLogger("slee.ExportGmail");
 
@@ -56,7 +56,8 @@ public class ExportGmail {
     public String FIELD_NAME_ADDRESS = "Address";
     public String FIELD_NAME_NOTES = "Other";
 
-    private Set<String> sectionNames = new HashSet<String>();
+    private int sectionCount;
+    private List<Set<String>> fieldNames = new ArrayList<Set<String>>();
 
     private List<ContactInfo> contacts = new ArrayList<ContactInfo>();
 
@@ -114,30 +115,31 @@ public class ExportGmail {
     }
 
     private void saveExportHeader(PrintWriter out) {
-        out.println(HEADER_NAME + "," + HEADER_EMAIL + ","
-                + SECTION_HEADER_NAME + " 1 - " + SECTION_HEADER_VALUE + ","
-                + SECTION_HEADER_NAME + " 1 - " + FIELD_NAME_MOBILE + ","
-                + SECTION_HEADER_NAME + " 1 - " + FIELD_NAME_EMAIL + ","
-                + SECTION_HEADER_NAME + " 1 - " + FIELD_NAME_IM + ","
-                + SECTION_HEADER_NAME + " 2 - " + SECTION_HEADER_VALUE + ","
-                + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_PHONE + ","
-                + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_EMAIL + ","
-                + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_COMPANY + ","
-                + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_COMPANY_POSITION
+        out.println(HEADER_NAME + "," + HEADER_EMAIL
+                + "," + SECTION_HEADER_NAME + " 1 - " + SECTION_HEADER_VALUE
+                + "," + SECTION_HEADER_NAME + " 1 - " + FIELD_NAME_MOBILE
+                + "," + SECTION_HEADER_NAME + " 1 - " + FIELD_NAME_EMAIL
+                + "," + SECTION_HEADER_NAME + " 1 - " + FIELD_NAME_IM
+                + "," + SECTION_HEADER_NAME + " 2 - " + SECTION_HEADER_VALUE
+                + "," + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_PHONE
+                + "," + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_EMAIL
+                + "," + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_COMPANY
+                + "," + SECTION_HEADER_NAME + " 2 - " + FIELD_NAME_COMPANY_POSITION
+                + "," + SECTION_HEADER_NAME + " 3 - " + SECTION_HEADER_VALUE
+                + "," + SECTION_HEADER_NAME + " 3 - " + FIELD_NAME_EMAIL
         );
     }
 
     private boolean exportPerson(PrintWriter out, Map<Long, String> organizationNames, Row personRow) {
         boolean artezio = false;
-        Set<String> phones = new HashSet<String>();
-        Set<String> ims = new HashSet<String>();
-        Set<String> emails = new HashSet<String>();
+        List<String> phones = new ArrayList<String>();
+        List<String> ims = new ArrayList<String>();
+        List<String> emails = new LinkedList<String>();
 //            Set<String> icqs = new HashSet<String>();
         String email = null;
         String companyEmail = null;
         String company = null;
         String companyPosition = null;
-        String icq = null;
 
         Long personId = personRow.getData(Data.personTable.id);
         for (Row personMessagingRow : Data.personMessagingTable) {
@@ -145,7 +147,6 @@ public class ExportGmail {
             String type = personMessagingRow.getData(Data.personMessagingType);
             String id = personMessagingRow.getData(Data.personMessagingId);
             if (type.equals(Data.IM_TYPE_EMAIL)) {
-                if (id.startsWith("pmoukhataev") || id.startsWith("pavel.moukhataev")) return false;
                 if (id.contains("@vc.") || id.contains("datastations") || id.contains("valuecommerce") || id.contains("looksmart")) {
                     // VC
                 } else if (id.contains("artezio")) {
@@ -166,8 +167,7 @@ public class ExportGmail {
             } else {
                 if (type.equals(Data.IM_TYPE_ICQ)) {
 //                        icqs.add(Data.IM_TYPE_ICQ);
-                    emails.add(id + "@icq.highsecure.ru");
-                    icq = id;
+                    emails.add(id + "@icq2.mo.pp.ru");
                 }
                 String imType = IM_TYPES.get(type);
                 if (imType == null) {
@@ -204,25 +204,28 @@ public class ExportGmail {
             return false;
         }
         if (name.length() == 0) {
-            if (icq != null) name.append(icq);
-            else if (email != null) name.append(email);
+            return false;
+//            if (icq != null) name.append(icq);
+//            else if (email != null) name.append(email);
         }
 
+        String secondaryEmail = null;
+        if (email == null) {
+            secondaryEmail = emails.remove(0);
+        }
 
-        StringBuilder emailsString = new StringBuilder();
-        appendString(emailsString, ";", emails);
+        int maxSize = Math.max(Math.max(emails.size(), phones.size()), ims.size());
 
-        StringBuilder imsString = new StringBuilder();
-        appendString(imsString, ";", ims);
-
-        StringBuilder mobilesString = new StringBuilder();
-        appendString(mobilesString , ";", phones);
-
-
-        saveString(out, name.toString(), email
-                , "Personal", mobilesString.toString(), emailsString.toString(), imsString.toString()
-                , "Work", companyPhone, companyEmail, company, companyPosition
-        );
+        for (int i = 0; i < maxSize; i++) {
+            String mobilesString = i >= phones.size() ? null : phones.get(i);
+            String emailsString = i >= emails.size() ? null : emails.get(i);
+            String imsString = i >= ims.size() ? null : ims.get(i);
+            saveString(out, name.toString(), email
+                    , "Personal", mobilesString, emailsString, imsString
+                    , "Work", companyPhone, companyEmail, company, companyPosition
+                    , "Personal", secondaryEmail
+            );
+        }
         out.println();
         return true;
     }
@@ -279,11 +282,11 @@ public class ExportGmail {
         }
 
         public Map<String, StringBuilder> getSection(String sectionName) {
-            sectionNames.add(sectionName);
             Map<String, StringBuilder> section = sections.get(sectionName);
             if (section == null) {
                 section = new HashMap<String, StringBuilder>();
                 sections.put(sectionName, section);
+
             }
             return section;
         }
