@@ -495,7 +495,7 @@ public class Importer {
 
     private void processGroups(Long personId) {
         boolean createGroup = this.createGroup;
-        if (importCompany) {
+        if (importCompany && company != null) {
             if (companyDepartment != null) {
                 group.add("Job/" + company + "/" + companyDepartment);
             } else {
@@ -699,9 +699,13 @@ public class Importer {
     }
 
     public void setGroup(String group) {
-        if (group != null) {
-            this.group.add(group);
+        if (group == null) return;
+        group = group.trim();
+        if (group.length() == 0) return;
+        if (group.contains("null")) {
+            log.error("Import error! Null group : " + group);
         }
+        this.group.add(group);
     }
 
     public void setAddress(String address) {
