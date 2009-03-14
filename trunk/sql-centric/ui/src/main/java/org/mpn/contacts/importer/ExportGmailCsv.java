@@ -63,6 +63,9 @@ public class ExportGmailCsv {
 
     private static final Map<String, String> IM_TYPES = new HashMap<String, String>();
 
+    private String[] jabberIcqGateway;
+
+
     static {
         IM_TYPES.put(Data.IM_TYPE_ICQ, "ICQ");
         IM_TYPES.put(Data.IM_TYPE_JABBER, "JABBER");
@@ -70,7 +73,8 @@ public class ExportGmailCsv {
         IM_TYPES.put(Data.IM_TYPE_MSN, "MSN");
     }
 
-    public void doExportGmail(File outFile) throws IOException {
+    public void doExportGmail(File outFile, String[] jabberIcqGateway) throws IOException {
+        this.jabberIcqGateway = jabberIcqGateway;
         PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-16"));
         saveExportHeader(out);
 
@@ -167,7 +171,9 @@ public class ExportGmailCsv {
             } else {
                 if (type.equals(Data.IM_TYPE_ICQ)) {
 //                        icqs.add(Data.IM_TYPE_ICQ);
-                    emails.add(id + "@icq2.mo.pp.ru");
+                    for (String s : jabberIcqGateway) {
+                        emails.add(id + '@' + jabberIcqGateway);
+                    }
                 }
                 String imType = IM_TYPES.get(type);
                 if (imType == null) {
@@ -225,8 +231,8 @@ public class ExportGmailCsv {
                     , "Work", companyPhone, companyEmail, company, companyPosition
                     , "Personal", secondaryEmail
             );
+            out.println();
         }
-        out.println();
         return true;
     }
 
