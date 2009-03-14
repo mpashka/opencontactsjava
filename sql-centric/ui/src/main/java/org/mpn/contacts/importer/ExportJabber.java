@@ -49,7 +49,7 @@ public class ExportJabber {
     private static final boolean JABBER_SASL_AUTHENTICATION_ENABLED = true;
 
     private static final String JABBER_CLIENT = "javatest";
-    private static final String ICQ_JABBER_GATEWAY = "icq2.mo.pp.ru";
+    private static String ICQ_JABBER_GATEWAY = "icq2.mo.pp.ru";
 
     private static final Map<Long, String> GROUPS = new HashMap<Long, String>();
     static {
@@ -109,7 +109,8 @@ public class ExportJabber {
             };
 
 
-    public void doExport(String login, String password) throws Exception {
+    public void doExport(String login, String password, String jabberIcqGateway) throws Exception {
+        ICQ_JABBER_GATEWAY = jabberIcqGateway;
         this.login = login;
         this.password = password;
         ConnectionConfiguration config = new ConnectionConfiguration(JABBER_SERVER, JABBER_PORT, JABBER_SERVICE);

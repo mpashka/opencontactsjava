@@ -27,10 +27,16 @@ import java.io.IOException;
 public class ExportTest {
 
     static final Logger log = Logger.getLogger("slee.ExportTest");
+    private static final String JABBER_ICQ_GATEWAY = "icq.gornyak.net";
+
 
     @Test
     public void exportGmail() throws IOException {
-        new ExportGmailCsv().doExportGmail(new File("target/gmail.csv"));
+        new ExportGmailCsv().doExportGmail(new File("target/gmail.csv"), new String[] {
+                JABBER_ICQ_GATEWAY
+//                , "icq2.mo.pp.ru"
+           }
+        );
 //        new ExportGmailCsv().doExportGmail(new File("target"), 50);
 //        new ExportGmail().doExportGmail(new File("target"), 10);
     }
@@ -45,7 +51,7 @@ public class ExportTest {
     @Test
     public void exportJabber() throws Exception {
         TestProperties testProperties = TestProperties.getInstance();
-        new ExportJabber().doExport(testProperties.getProperty("google.login.production"), testProperties.getProperty("google.password.production"));
+        new ExportJabber().doExport(testProperties.getProperty("google.login.production"), testProperties.getProperty("google.password.production"), JABBER_ICQ_GATEWAY);
 
     }
 }
