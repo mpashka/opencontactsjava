@@ -209,9 +209,13 @@ public class DbTable extends EventGeneratorBase<DataSource> implements DataSourc
     }
 
     private void setSqlStatementObject(PreparedStatement sqlStatement, Field fieldMetadata, Object fieldData, int index) throws SQLException {
-        if (fieldData == null) return;
+//        if (fieldData == null) return;
         if (fieldMetadata.getTypeClass() == Date.class) {
             log.debug("Iserting date : " + fieldData);
+            if (fieldData == null) {
+                sqlStatement.setDate(index, null);
+                return;
+            }
             Date date = (Date) fieldData;
             java.sql.Date sqlDate = new java.sql.Date(date.getTime());
             sqlStatement.setDate(index, sqlDate);

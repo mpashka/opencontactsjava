@@ -22,7 +22,7 @@ import java.util.Iterator;
  * @author <a href="mailto:pmoukhataev@jnetx.ru">Pavel Moukhataev</a>
  * @version $Revision$
  */
-public interface Row extends EventGenerator<Row>, Iterator<Row> {
+public interface Row extends EventGenerator<Row>, Iterator<Row>, Iterable<Row> {
 
     DataSource getDataSource();
 
